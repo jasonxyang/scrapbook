@@ -1,4 +1,4 @@
-import { ApiRoutes } from "@/types";
+import { ApiRoute } from "@/types";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -8,7 +8,7 @@ interface FetchOptions extends RequestInit {
 }
 
 async function fetchData<T>(
-  url: ApiRoutes,
+  url: ApiRoute,
   method: HttpMethod = "GET",
   options?: FetchOptions
 ): Promise<T> {
@@ -38,14 +38,14 @@ async function fetchData<T>(
 }
 
 export async function get<T>(
-  url: ApiRoutes,
+  url: ApiRoute,
   options?: FetchOptions
 ): Promise<T> {
   return fetchData<T>(url, "GET", options);
 }
 
 export async function post<T>(
-  url: ApiRoutes,
+  url: ApiRoute,
   data?: any,
   options?: FetchOptions
 ): Promise<T> {
@@ -56,7 +56,7 @@ export async function post<T>(
 }
 
 export async function put<T>(
-  url: ApiRoutes,
+  url: ApiRoute,
   data?: any,
   options?: FetchOptions
 ): Promise<T> {
@@ -67,7 +67,7 @@ export async function put<T>(
 }
 
 export async function del<T>(
-  url: ApiRoutes,
+  url: ApiRoute,
   data?: any,
   options?: FetchOptions
 ): Promise<T> {
