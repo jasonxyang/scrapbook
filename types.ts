@@ -49,3 +49,16 @@ export const DOCUMENT_TYPES = [
 ] as const;
 
 export type DocumentType = (typeof DOCUMENT_TYPES)[number];
+
+export type Template = {
+  id: string;
+  sections: [];
+  content: string;
+};
+
+export type TemplateSection = {
+  title: string;
+  keywords: string[];
+  keySentences: string[];
+  content: string;
+};
