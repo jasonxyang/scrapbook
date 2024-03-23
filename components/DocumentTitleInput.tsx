@@ -5,7 +5,6 @@ import titleAtom from "@/recoil/title";
 
 const DocumentTitleInput = () => {
   const [currentTitle, setCurrentTitle] = useRecoilState(titleAtom);
-
   return (
     <div>
       Document Title
