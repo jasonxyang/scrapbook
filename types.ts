@@ -34,3 +34,18 @@ const TONES = [
 ] as const;
 
 export type Tone = (typeof TONES)[number];
+
+const DOCUMENT_TYPES = [
+  "Academic Essay",
+  "Business Letter",
+  "Creative Writing",
+  "Design Documentation",
+  "Fellowship/Scholarship",
+  "Application",
+  "Legal Document",
+  "Marketing Copy",
+  "Technical Report",
+  "Other",
+] as const;
+
+export type DocumentType = (typeof DOCUMENT_TYPES)[number];
