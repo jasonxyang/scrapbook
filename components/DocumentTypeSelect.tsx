@@ -16,12 +16,15 @@ const DocumentTypeSelect = () => {
     });
   }, []);
   return (
-    <Select
-      value={currentDocumentType as string}
-      onValueChange={setCurrentDocumentType as (value: string) => void}
-      items={items}
-      itemType="item"
-    />
+    <div>
+      <label className="pr-4 font-bold">Document Type</label>
+      <Select
+        value={currentDocumentType as string}
+        onValueChange={setCurrentDocumentType as (value: string) => void}
+        items={items}
+        itemType="item"
+      />
+    </div>
   );
 };
 

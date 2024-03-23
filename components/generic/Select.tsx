@@ -59,14 +59,14 @@ export const Select = ({
       defaultValue={defaultValue}
       onValueChange={onValueChange}
     >
-      <Trigger>
+      <Trigger  className="inline-flex items-center border border-gray-300 rounded px-3 py-2 bg-white text-sm leading-4 text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-blue-500 w-250">
         <Value placeholder={placeholder ?? "Select a value..."} />
         <Icon>
           <ChevronDownIcon />
         </Icon>
       </Trigger>
       <Portal>
-        <Content>
+        <Content className="border border-gray-300 rounded px-5 py-3 bg-white text-sm leading-4 text-gray-600 ">
           <ScrollUpButton>
             <ChevronUpIcon />
           </ScrollUpButton>
@@ -84,9 +84,9 @@ export type SelectItemProps = {
 const SelectItem = memo(
   forwardRef<HTMLDivElement, SelectItemProps>(({ value, label }, ref) => {
     return (
-      <Item value={value} ref={ref}>
-        <ItemText>{label}</ItemText>
-        <ItemIndicator className="SelectItemIndicator">
+      <Item value={value} ref={ref} className="px-5 py-2 bg-white flex items-center">
+        <ItemText className="inline">{label}</ItemText>
+        <ItemIndicator className="SelectItemIndicator inline">
           <CheckIcon />
         </ItemIndicator>
       </Item>

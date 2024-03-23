@@ -16,6 +16,7 @@ const Checkbox = ({
 }: CheckboxProps) => {
   return (
     <Root
+      className="mx-3 inline-flex items-center"
       checked={checked}
       onCheckedChange={onCheckedChange}
       defaultChecked={defaultChecked}

@@ -21,7 +21,8 @@ export const TextInput = memo(
 
       return (
         <input
-          placeholder=""
+          className="appearance-none border rounded pl-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          placeholder={placeholder}
           value={value}
           onChange={handleOnChange}
           type="text"
