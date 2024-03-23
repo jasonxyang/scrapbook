@@ -17,6 +17,26 @@ const ScrapbookPanel: React.FC<ScrapbookPanelProps> = ({ editorText, setEditorTe
     // console.log("Inserted text:", editorText);
   };
 
+  // const generateText = () => {
+  //   // Update the state to insert text into the editor
+  //   // setEditorText("change text to this");
+  //   console.log("Generate new text from ChatGPT");
+  // };
+
+  const generateText = async () => {
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions'); // Replace '/api/your-endpoint' with the actual API endpoint URL
+      if (!res.ok) {
+        throw new Error('Failed to generate text');
+      }
+      const data = await res.json();
+      setEditorText(data.status);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+
   return (
     <div>
         <Panel key="" title="my title" content="my content" />
@@ -24,6 +44,11 @@ const ScrapbookPanel: React.FC<ScrapbookPanelProps> = ({ editorText, setEditorTe
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" 
           onClick={handleInsertText}>
             Copy and Paste
+        </button>
+        <button 
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" 
+          onClick={generateText}>
+            Change Text
         </button>
     </div>
   );
