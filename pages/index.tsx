@@ -7,6 +7,7 @@ import ScrapbookPanel from "@/components/ScrapbookPanel";
 import RichTextEditor from "@/components/RichTextEditor";
 import { spaceGrotesk, spaceMono } from "@/fonts";
 import classNames from "classnames";
+import TemplateSection from "@/components/TemplateSection";
 import React, { useState } from 'react';
 
 export default function Home() {
@@ -20,11 +21,11 @@ export default function Home() {
           <DocumentTypeSelect />
           <div className="block py-2">
             <label className="font-bold inline-block">Style</label>
-          <StyleCheckboxGroup />
+            <StyleCheckboxGroup />
           </div>
           <div className="block py-2">
-          <label className="font-bold inline-block">Tone</label>
-          <ToneCheckboxGroup />
+            <label className="font-bold inline-block">Tone</label>
+            <ToneCheckboxGroup />
           </div>
         </div>
         <hr></hr>
@@ -33,6 +34,8 @@ export default function Home() {
           <RichTextEditor text={editorText} onTextChange={setEditorText} />
           <ScrapbookPanel editorText={editorText} setEditorText={setEditorText} />
         </div>
+
+        <TemplateSection />
       </main>
     </>
   );
