@@ -4,6 +4,7 @@ import StyleCheckboxGroup from "@/components/StyleCheckboxGroup";
 import ToneCheckboxGroup from "@/components/ToneCheckboxGroup";
 import TemplateSidePanel from "@/components/TemplateSidePanel";
 import ScrapbookPanel from "@/components/ScrapbookPanel";
+import RichTextEditor from "@/components/RichTextEditor";
 import { spaceGrotesk, spaceMono } from "@/fonts";
 import classNames from "classnames";
 
@@ -26,6 +27,7 @@ export default function Home() {
         <hr></hr>
         <div className="flex w-screen">
           <TemplateSidePanel />
+          <RichTextEditor/>
           <ScrapbookPanel />
         </div>
       </main>

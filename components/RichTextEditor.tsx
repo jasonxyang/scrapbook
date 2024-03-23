@@ -9,13 +9,15 @@ const ReactQuill = dynamic(() => import('react-quill'), {
 
 interface RichTextEditorProps {
   initialText?: string;
+  onTextChange: (newText: string) => void; // Callback function to update the text
 }
 
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ initialText = '' }) => {
-  const [text, setText] = useState(initialText);
+  const [text, onTextChange] = useState(initialText);
 
   const handleChange = (content: string) => {
-    setText(content);
+    // setText(content);
+    onTextChange(content);
   };
 
   return <ReactQuill value={text} onChange={handleChange} />;
