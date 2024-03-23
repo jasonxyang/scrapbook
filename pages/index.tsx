@@ -9,8 +9,8 @@ export default function Home() {
   return (
     <>
       <main className={classNames(spaceGrotesk.variable, spaceMono.variable)}>
-        <DocumentTypeSelect />
         <DocumentTitleInput />
+        <DocumentTypeSelect />
         <h2>Style</h2>
         <StyleCheckboxGroup />
         <h2>Tone</h2>
