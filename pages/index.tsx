@@ -2,6 +2,8 @@ import DocumentTypeSelect from "@/components/DocumentTypeSelect";
 import DocumentTitleInput from "@/components/DocumentTitleInput";
 import StyleCheckboxGroup from "@/components/StyleCheckboxGroup";
 import ToneCheckboxGroup from "@/components/ToneCheckboxGroup";
+import TemplateSidePanel from "@/components/TemplateSidePanel";
+import ScrapbookPanel from "@/components/ScrapbookPanel";
 import { spaceGrotesk, spaceMono } from "@/fonts";
 import classNames from "classnames";
 
@@ -22,6 +24,10 @@ export default function Home() {
           </div>
         </div>
         <hr></hr>
+        <div className="flex w-screen">
+          <TemplateSidePanel />
+          <ScrapbookPanel />
+        </div>
       </main>
     </>
   );
