@@ -9,6 +9,7 @@ export default function Home() {
       <main className={classNames(spaceGrotesk.variable, spaceMono.variable)}>
         <h2>Style</h2>
         <StyleCheckboxGroup />
+        <h2>Tone</h2>
         <ToneCheckboxGroup />
       </main>
     </>
