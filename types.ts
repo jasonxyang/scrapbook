@@ -9,7 +9,7 @@ export type ApiRoute = {
     | `/api/${key}`;
 }[keyof typeof API_ROUTES];
 
-const STYLES = [
+export const STYLES = [
   "Narrative",
   "Descriptive",
   "Expository",
@@ -22,7 +22,7 @@ const STYLES = [
 
 export type Style = (typeof STYLES)[number];
 
-const TONES = [
+export const TONES = [
   "Formal",
   "Informal",
   "Playful",
@@ -35,7 +35,7 @@ const TONES = [
 
 export type Tone = (typeof TONES)[number];
 
-const DOCUMENT_TYPES = [
+export const DOCUMENT_TYPES = [
   "Academic Essay",
   "Business Letter",
   "Creative Writing",

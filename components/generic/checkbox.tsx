@@ -4,12 +4,14 @@ import { memo } from "react";
 type CheckboxProps = {
   defaultChecked?: boolean;
   checked: boolean;
-  onCheckedChange: () => boolean;
+  onCheckedChange: () => void;
+  label?: string;
 };
 const Checkbox = ({
   checked,
   onCheckedChange,
   defaultChecked,
+  label,
 }: CheckboxProps) => {
   return (
     <Root
@@ -18,6 +20,7 @@ const Checkbox = ({
       defaultChecked={defaultChecked}
     >
       <Indicator />
+      {label && <span>{label}</span>}
     </Root>
   );
 };
