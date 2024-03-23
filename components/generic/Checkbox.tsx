@@ -1,4 +1,5 @@
 import { Root, Indicator } from "@radix-ui/react-checkbox";
+import { CheckIcon } from "@radix-ui/react-icons";
 import { memo } from "react";
 
 type CheckboxProps = {
@@ -19,7 +20,9 @@ const Checkbox = ({
       onCheckedChange={onCheckedChange}
       defaultChecked={defaultChecked}
     >
-      <Indicator />
+      <Indicator>
+        <CheckIcon />
+      </Indicator>
       {label && <span>{label}</span>}
     </Root>
   );

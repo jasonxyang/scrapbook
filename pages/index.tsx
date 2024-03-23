@@ -1,3 +1,4 @@
+import DocumentTypeSelect from "@/components/DocumentTypeSelect";
 import DocumentTitleInput from "@/components/DocumentTitleInput";
 import StyleCheckboxGroup from "@/components/StyleCheckboxGroup";
 import ToneCheckboxGroup from "@/components/ToneCheckboxGroup";
@@ -8,6 +9,7 @@ export default function Home() {
   return (
     <>
       <main className={classNames(spaceGrotesk.variable, spaceMono.variable)}>
+        <DocumentTypeSelect />
         <DocumentTitleInput />
         <h2>Style</h2>
         <StyleCheckboxGroup />
