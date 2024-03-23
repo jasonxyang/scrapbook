@@ -7,8 +7,11 @@ import ScrapbookPanel from "@/components/ScrapbookPanel";
 import RichTextEditor from "@/components/RichTextEditor";
 import { spaceGrotesk, spaceMono } from "@/fonts";
 import classNames from "classnames";
+import React, { useState } from 'react';
 
 export default function Home() {
+  const [editorText, setEditorText] = useState('Initial text');
+
   return (
     <>
       <main className={classNames(spaceGrotesk.variable, spaceMono.variable)}>
@@ -27,8 +30,8 @@ export default function Home() {
         <hr></hr>
         <div className="flex w-screen">
           <TemplateSidePanel />
-          <RichTextEditor/>
-          <ScrapbookPanel />
+          <ScrapbookPanel editorText={editorText} setEditorText={setEditorText} />
+          <RichTextEditor text={editorText} onTextChange={setEditorText} />
         </div>
       </main>
     </>
