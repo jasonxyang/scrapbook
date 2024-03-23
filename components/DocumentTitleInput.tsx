@@ -6,7 +6,7 @@ import titleAtom from "@/recoil/title";
 const DocumentTitleInput = () => {
   const [currentTitle, setCurrentTitle] = useRecoilState(titleAtom);
   return (
-    <div>
+    <div className="inline-block">
       <label className="pr-4 font-bold">Document Title </label>
       <TextInput value={currentTitle} onValueChange={setCurrentTitle}         placeholder="Enter document title" />
     </div>

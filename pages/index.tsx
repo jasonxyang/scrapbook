@@ -9,12 +9,19 @@ export default function Home() {
   return (
     <>
       <main className={classNames(spaceGrotesk.variable, spaceMono.variable)}>
-        <DocumentTitleInput />
-        <DocumentTypeSelect />
-        <h2>Style</h2>
-        <StyleCheckboxGroup />
-        <h2>Tone</h2>
-        <ToneCheckboxGroup />
+        <div className="px-5 py-5">
+          <DocumentTitleInput />
+          <DocumentTypeSelect />
+          <div className="block py-2">
+            <label className="font-bold inline-block">Style</label>
+          <StyleCheckboxGroup />
+          </div>
+          <div className="block py-2">
+          <label className="font-bold inline-block">Tone</label>
+          <ToneCheckboxGroup />
+          </div>
+        </div>
+        <hr></hr>
       </main>
     </>
   );

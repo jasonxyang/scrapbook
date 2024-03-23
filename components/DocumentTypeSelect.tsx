@@ -16,7 +16,7 @@ const DocumentTypeSelect = () => {
     });
   }, []);
   return (
-    <div>
+    <div className="inline-block px-5">
       <label className="pr-4 font-bold">Document Type</label>
       <Select
         value={currentDocumentType as string}
