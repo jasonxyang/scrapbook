@@ -13,8 +13,8 @@ import { PropsWithChildren, ReactNode, memo } from "react";
 
 type DialogProps = PropsWithChildren<{
   title: string;
-  description: string;
-  content: ReactNode;
+  description?: string;
+  content?: ReactNode;
   button?: {
     text: string;
     onClick: () => void;

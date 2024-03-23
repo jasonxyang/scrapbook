@@ -52,14 +52,14 @@ export const Select = ({
     return items.map((itemProps) => (
       <SelectItem key={itemProps.label} {...itemProps} />
     ));
-  }, []);
+  }, [itemType, items]);
   return (
     <Root
       value={value}
       defaultValue={defaultValue}
       onValueChange={onValueChange}
     >
-      <Trigger  className="inline-flex items-center border border-gray-300 rounded px-3 py-2 bg-white text-sm leading-4 text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-blue-500 w-250">
+      <Trigger className="inline-flex items-center border border-gray-300 rounded px-3 py-2 bg-white text-sm leading-4 text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-blue-500 w-250">
         <Value placeholder={placeholder ?? "Select a value..."} />
         <Icon>
           <ChevronDownIcon />
@@ -84,7 +84,11 @@ export type SelectItemProps = {
 const SelectItem = memo(
   forwardRef<HTMLDivElement, SelectItemProps>(({ value, label }, ref) => {
     return (
-      <Item value={value} ref={ref} className="px-5 py-2 bg-white flex items-center">
+      <Item
+        value={value}
+        ref={ref}
+        className="px-5 py-2 bg-white flex items-center"
+      >
         <ItemText className="inline">{label}</ItemText>
         <ItemIndicator className="SelectItemIndicator inline">
           <CheckIcon />

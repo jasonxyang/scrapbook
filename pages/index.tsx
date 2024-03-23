@@ -6,6 +6,7 @@ import TemplateSidePanel from "@/components/TemplateSidePanel";
 import ScrapbookPanel from "@/components/ScrapbookPanel";
 import { spaceGrotesk, spaceMono } from "@/fonts";
 import classNames from "classnames";
+import TemplateSection from "@/components/TemplateSection";
 
 export default function Home() {
   return (
@@ -16,11 +17,11 @@ export default function Home() {
           <DocumentTypeSelect />
           <div className="block py-2">
             <label className="font-bold inline-block">Style</label>
-          <StyleCheckboxGroup />
+            <StyleCheckboxGroup />
           </div>
           <div className="block py-2">
-          <label className="font-bold inline-block">Tone</label>
-          <ToneCheckboxGroup />
+            <label className="font-bold inline-block">Tone</label>
+            <ToneCheckboxGroup />
           </div>
         </div>
         <hr></hr>
@@ -28,6 +29,8 @@ export default function Home() {
           <TemplateSidePanel />
           <ScrapbookPanel />
         </div>
+
+        <TemplateSection />
       </main>
     </>
   );
