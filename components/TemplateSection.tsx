@@ -26,9 +26,9 @@ const TemplateSection = () => {
     return (
       <div>
         <h3>No templates found</h3>
-        <DocumentFileUpoadDialog>
+        <CreateTemplateDialog>
           <button>Create template</button>
-        </DocumentFileUpoadDialog>
+        </CreateTemplateDialog>
       </div>
     );
   }, []);
@@ -48,91 +48,90 @@ const TemplateSection = () => {
   );
 };
 
-const DocumentFileUpoadDialog = memo(
-  ({ children }: { children: ReactNode }) => {
-    const [templates, setTemplates] = useRecoilState(templatesAtom);
+const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
+  const [templates, setTemplates] = useRecoilState(templatesAtom);
 
-    const [stringifiedDocument, setStringifiedDocument] = useState<string>();
+  const [stringifiedDocument, setStringifiedDocument] = useState<string>();
 
-    const createNewTemplate = useCallback(() => {
-      if (stringifiedDocument) {
-        const newTemplate =
-          processStringifiedDocumentIntoTemplate(stringifiedDocument);
-        setTemplates({
-          ...templates,
-          [newTemplate.id]: newTemplate,
-        });
-      }
-    }, [setTemplates, stringifiedDocument, templates]);
-
-    const onFileUpload = useCallback((file: File) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setStringifiedDocument(e.target?.result as string);
-      };
-      reader.readAsText(file);
-    }, []);
-
-    const clearFile = useCallback(() => {
-      setStringifiedDocument("");
-    }, []);
-
-    useEffect(
-      function clearFileOnUnmount() {
-        return () => {
-          clearFile();
-        };
-      },
-      [clearFile]
-    );
-
-    const content = useCallback(() => {
-      return (
-        <div>
-          <FileInput onFileUpload={onFileUpload} onFileClear={clearFile} />
-          {!!stringifiedDocument && <div>{stringifiedDocument}</div>}
-        </div>
+  const processStringifiedDocumentIntoTemplate = useCallback(
+    (stringifiedDocument: string) => {
+      // split strings into sections by double newline
+      const sections = stringifiedDocument.split("\n\n").map(
+        (section) =>
+          ({
+            title: "",
+            keywords: [],
+            keySentences: [],
+            content: section,
+          } satisfies TemplateSection)
       );
-    }, [clearFile, onFileUpload, stringifiedDocument]);
+      const template = {
+        id: nanoid(),
+        name: "",
+        sections,
+        content: stringifiedDocument,
+      } satisfies Template;
 
-    const button = useMemo(() => {
-      return {
-        text: "Create Template",
-        onClick: createNewTemplate,
-      };
-    }, [createNewTemplate]);
-
-    return (
-      <Dialog title="Upload file" content={content()} button={button}>
-        {children}
-      </Dialog>
-    );
-  }
-);
-
-DocumentFileUpoadDialog.displayName = "DocumentFileUpoadDialog";
-
-const processStringifiedDocumentIntoTemplate = (
-  stringifiedDocument: string
-) => {
-  // split strings into sections by double newline
-  const sections = stringifiedDocument.split("\n\n").map(
-    (section) =>
-      ({
-        title: "",
-        keywords: [],
-        keySentences: [],
-        content: section,
-      } satisfies TemplateSection)
+      return template;
+    },
+    []
   );
-  const template = {
-    id: nanoid(),
-    name: "",
-    sections,
-    content: stringifiedDocument,
-  } satisfies Template;
 
-  return template;
-};
+  const createNewTemplate = useCallback(() => {
+    if (stringifiedDocument) {
+      const newTemplate =
+        processStringifiedDocumentIntoTemplate(stringifiedDocument);
+      setTemplates({
+        ...templates,
+        [newTemplate.id]: newTemplate,
+      });
+    }
+  }, [setTemplates, stringifiedDocument, templates]);
+
+  const onFileUpload = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setStringifiedDocument(e.target?.result as string);
+    };
+    reader.readAsText(file);
+  }, []);
+
+  const clearFile = useCallback(() => {
+    setStringifiedDocument("");
+  }, []);
+
+  useEffect(
+    function clearFileOnUnmount() {
+      return () => {
+        clearFile();
+      };
+    },
+    [clearFile]
+  );
+
+  const content = useCallback(() => {
+    return (
+      <div>
+        <FileInput onFileUpload={onFileUpload} onFileClear={clearFile} />
+        {!!stringifiedDocument && <div>{stringifiedDocument}</div>}
+      </div>
+    );
+  }, [clearFile, onFileUpload, stringifiedDocument]);
+
+  const button = useMemo(() => {
+    return {
+      text: "Create Template",
+      onClick: createNewTemplate,
+    };
+  }, [createNewTemplate]);
+
+  return (
+    <Dialog title="Upload file" content={content()} button={button}>
+      {children}
+    </Dialog>
+  );
+});
+
+CreateTemplateDialog.displayName = "DocumentFileUpoadDialog";
 
 export default memo(TemplateSection);
