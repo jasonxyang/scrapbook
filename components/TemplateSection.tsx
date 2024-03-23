@@ -1,4 +1,3 @@
-import selectedTemplateAtom from "@/recoil/template/selectedTemplate";
 import templatesAtom from "@/recoil/template/templates";
 import {
   ReactNode,
@@ -9,15 +8,13 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import Dialog from "./generic/Dialog";
 import { FileInput } from "./generic/Input";
-import { Cross2Icon } from "@radix-ui/react-icons";
-import { Template } from "@/types";
+import { Template, TemplateSection } from "@/types";
+import { nanoid } from "nanoid";
 
 const TemplateSection = () => {
-  const [currentTemplate, setCurrentTemplate] =
-    useRecoilState(selectedTemplateAtom);
   const [templates, setTemplates] = useRecoilState(templatesAtom);
 
   const renderEmptyState = useCallback(() => {
@@ -35,13 +32,20 @@ const TemplateSection = () => {
 
 const DocumentFileUpoadDialog = memo(
   ({ children }: { children: ReactNode }) => {
-    const setTemplates = useSetRecoilState(templatesAtom);
+    const [templates, setTemplates] = useRecoilState(templatesAtom);
 
     const [stringifiedDocument, setStringifiedDocument] = useState<string>();
 
     const createNewTemplate = useCallback(() => {
-      if (stringifiedDocument) processStringifiedDocument(stringifiedDocument);
-    }, [stringifiedDocument]);
+      if (stringifiedDocument) {
+        const newTemplate =
+          processStringifiedDocumentIntoTemplate(stringifiedDocument);
+        setTemplates({
+          ...templates,
+          [newTemplate.id]: newTemplate,
+        });
+      }
+    }, [setTemplates, stringifiedDocument, templates]);
 
     const onFileUpload = useCallback((file: File) => {
       const reader = new FileReader();
@@ -90,8 +94,26 @@ const DocumentFileUpoadDialog = memo(
 
 DocumentFileUpoadDialog.displayName = "DocumentFileUpoadDialog";
 
-const processStringifiedDocument = (stringifiedDocument: string) => {
-  console.info(stringifiedDocument);
+const processStringifiedDocumentIntoTemplate = (
+  stringifiedDocument: string
+) => {
+  // split strings into sections by double newline
+  const sections = stringifiedDocument.split("\n\n").map(
+    (section) =>
+      ({
+        title: "",
+        keywords: [],
+        keySentences: [],
+        content: section,
+      } satisfies TemplateSection)
+  );
+  const template = {
+    id: nanoid(),
+    sections,
+    content: stringifiedDocument,
+  } satisfies Template;
+
+  return template;
 };
 
 export default memo(TemplateSection);
