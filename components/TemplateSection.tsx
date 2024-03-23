@@ -8,14 +8,19 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import Dialog from "./generic/Dialog";
 import { FileInput } from "./generic/Input";
 import { Template, TemplateSection } from "@/types";
 import { nanoid } from "nanoid";
+import TemplateCard from "./TemplateCard";
 
 const TemplateSection = () => {
-  const [templates, setTemplates] = useRecoilState(templatesAtom);
+  const templates = useRecoilValue(templatesAtom);
+
+  const hasTemplates = useMemo(() => {
+    return !!Object.keys(templates).length;
+  }, [templates]);
 
   const renderEmptyState = useCallback(() => {
     return (
@@ -27,7 +32,20 @@ const TemplateSection = () => {
       </div>
     );
   }, []);
-  return <section>{!templates?.length && renderEmptyState()}</section>;
+
+  const renderTemplates = useCallback(() => {
+    if (!templates) return null;
+    return Object.keys(templates).map((templateId) => (
+      <TemplateCard key={templateId} id={templateId} />
+    ));
+  }, [templates]);
+
+  return (
+    <section>
+      {hasTemplates ? renderTemplates() : renderEmptyState()}
+      {}
+    </section>
+  );
 };
 
 const DocumentFileUpoadDialog = memo(
@@ -109,6 +127,7 @@ const processStringifiedDocumentIntoTemplate = (
   );
   const template = {
     id: nanoid(),
+    name: "",
     sections,
     content: stringifiedDocument,
   } satisfies Template;
