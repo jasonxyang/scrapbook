@@ -1,7 +1,7 @@
 import styleAtom from "@/recoil/style";
 import { useRecoilState } from "recoil";
 import { STYLES, Style } from "@/types";
-import Checkbox from "./generic/checkbox";
+import Checkbox from "./generic/Checkbox";
 import { memo, useCallback } from "react";
 
 const StyleCheckboxGroup = () => {

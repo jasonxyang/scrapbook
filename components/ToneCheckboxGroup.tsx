@@ -1,6 +1,6 @@
 import { useRecoilState } from "recoil";
 import { TONES, Tone } from "@/types";
-import Checkbox from "./generic/checkbox";
+import Checkbox from "./generic/Checkbox";
 import { memo, useCallback } from "react";
 import toneAtom from "@/recoil/tone";
 
