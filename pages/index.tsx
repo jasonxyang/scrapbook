@@ -1,6 +1,5 @@
 import StyleCheckboxGroup from "@/components/StyleCheckboxGroup";
 import ToneCheckboxGroup from "@/components/ToneCheckboxGroup";
-import Checkbox from "@/components/generic/checkbox";
 import { spaceGrotesk, spaceMono } from "@/fonts";
 import classNames from "classnames";
 
