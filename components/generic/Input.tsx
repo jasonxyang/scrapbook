@@ -1,9 +1,11 @@
+import { showAlert } from "@/utils.ts/client/errorHandling";
 import {
   ChangeEvent,
   InputHTMLAttributes,
   forwardRef,
   memo,
   useCallback,
+  useState,
 } from "react";
 
 type TextInputProps = {
@@ -29,6 +31,48 @@ export const TextInput = memo(
           ref={ref}
           required={required}
         />
+      );
+    }
+  )
+);
+
+type FileInputProps = {
+  onFileChange: (file: File) => void;
+  required?: InputHTMLAttributes<HTMLInputElement>["required"];
+  multiple?: InputHTMLAttributes<HTMLInputElement>["multiple"];
+};
+
+export const FileInput = memo(
+  forwardRef<HTMLInputElement, FileInputProps>(
+    ({ required, multiple, onFileChange }, ref) => {
+      const [file, setFile] = useState<File | null | undefined>(null);
+
+      const handleFileChange = useCallback(
+        (e: ChangeEvent<HTMLInputElement>) => {
+          const files = e.target.files;
+          const firstFile = files?.[0];
+          try {
+            if (!firstFile) throw new Error("Error: No files uploaded");
+            setFile(firstFile);
+            onFileChange(firstFile);
+          } catch (error) {
+            console.error(error);
+            showAlert((error as any).message);
+          }
+        },
+        []
+      );
+      return (
+        <>
+          <input
+            onChange={handleFileChange}
+            type="file"
+            accept=".txt"
+            ref={ref}
+            required={required}
+            multiple={multiple}
+          />
+        </>
       );
     }
   )
