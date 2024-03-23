@@ -16,12 +16,12 @@ const Checkbox = ({
 }: CheckboxProps) => {
   return (
     <Root
-      className="mx-3 inline-flex items-center"
+      className="mx-3 inline-flex items-center border border-gray-300 rounded px-2 py-1"
       checked={checked}
       onCheckedChange={onCheckedChange}
       defaultChecked={defaultChecked}
     >
-      <Indicator>
+      <Indicator className="px-1">
         <CheckIcon />
       </Indicator>
       {label && <span>{label}</span>}
