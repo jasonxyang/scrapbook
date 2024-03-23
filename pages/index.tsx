@@ -30,8 +30,8 @@ export default function Home() {
         <hr></hr>
         <div className="flex w-screen">
           <TemplateSidePanel />
-          <ScrapbookPanel editorText={editorText} setEditorText={setEditorText} />
           <RichTextEditor text={editorText} onTextChange={setEditorText} />
+          <ScrapbookPanel editorText={editorText} setEditorText={setEditorText} />
         </div>
       </main>
     </>
