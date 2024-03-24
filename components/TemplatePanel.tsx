@@ -1,6 +1,4 @@
 import React, { useCallback } from "react";
-
-import Panel from "./generic/Panel";
 import { memo } from "react";
 import { selectedTemplateSelector } from "@/recoil/template/selectors";
 import { useRecoilValue } from "recoil";
@@ -8,7 +6,6 @@ import { Template } from "@/types";
 
 const TemplatePanel = () => {
   const selectedTemplate = useRecoilValue(selectedTemplateSelector);
-  console.log(selectedTemplate);
 
   const renderEmptyState = useCallback(() => {
     return <div>No template selected</div>;

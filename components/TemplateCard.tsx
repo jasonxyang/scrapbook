@@ -28,14 +28,27 @@ const TemplateCard = ({ id }: TemplateCardProps) => {
 
   if (!template) return null;
   return (
-    <div>
-      <h2>{template.name}</h2>
-      <p>id: {template.id}</p>
-      <EditTemplateDialog id={template.id}>
-        <button>Edit</button>
-      </EditTemplateDialog>
-      <button onClick={handleDelete}>Delete</button>
-      <button onClick={handleUseTemplate}>Use template</button>
+    <div className="outline-gray-400 outline-1 outline w-fit h-fit p-4 rounded-md">
+      <h4>{!!template.name ? template.name : "Template Draft"}</h4>
+      <div className="flex gap-2">
+        <EditTemplateDialog id={template.id}>
+          <button className="outline-black outline-1 outline w-fit h-fit px-2 py-1 rounded-sm">
+            Edit
+          </button>
+        </EditTemplateDialog>
+        <button
+          onClick={handleDelete}
+          className="outline-black outline-1 outline w-fit h-fit px-2 py-1 rounded-sm"
+        >
+          Delete
+        </button>
+        <button
+          onClick={handleUseTemplate}
+          className="outline-black outline-1 outline w-fit h-fit px-2 py-1 rounded-sm"
+        >
+          Use template
+        </button>
+      </div>
     </div>
   );
 };
