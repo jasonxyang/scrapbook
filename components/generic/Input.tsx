@@ -1,5 +1,6 @@
 import { showAlert } from "@/utils.ts/client/errorHandling";
 import { Cross2Icon } from "@radix-ui/react-icons";
+import classNames from "classnames";
 import {
   ChangeEvent,
   InputHTMLAttributes,
@@ -8,16 +9,18 @@ import {
   useCallback,
   useRef,
   useEffect,
+  useState,
 } from "react";
 
 type TextInputProps = {
   value: string;
   onValueChange: (value: string) => void;
   label?: string;
+  className?: string;
 } & InputHTMLAttributes<HTMLInputElement>;
 export const TextInput = memo(
   forwardRef<HTMLInputElement, TextInputProps>(
-    ({ value, onValueChange, label, ...inputProps }, ref) => {
+    ({ value, onValueChange, label, className, ...inputProps }, ref) => {
       const handleOnChange = useCallback(
         (e: ChangeEvent<HTMLInputElement>) => {
           onValueChange(e.currentTarget.value);
@@ -29,7 +32,10 @@ export const TextInput = memo(
         <>
           {label && <div>{label}</div>}
           <input
-            className="appearance-none border rounded pl-2 py-2 px-3 leading-tight focus:outline-none focus:shadow-outline bg-gray-100"
+            className={classNames(
+              "appearance-none border rounded pl-2 py-2 px-3 leading-tight focus:outline-none focus:shadow-outline bg-gray-100",
+              className
+            )}
             value={value}
             onChange={handleOnChange}
             type="text"
@@ -50,6 +56,7 @@ type FileInputProps = {
 export const FileInput = memo(
   forwardRef<HTMLInputElement, FileInputProps>(
     ({ onFileUpload, onFileClear, ...inputProps }, ref) => {
+      const [file, setFile] = useState<File | null>(null);
       const innerRef = useRef<HTMLInputElement>(null);
 
       useEffect(
@@ -67,6 +74,7 @@ export const FileInput = memo(
       const handleClearInput = useCallback(() => {
         if (innerRef.current) innerRef.current.value = "";
         onFileClear();
+        setFile(null);
       }, [onFileClear]);
 
       const handleFileChange = useCallback(
@@ -76,6 +84,7 @@ export const FileInput = memo(
           try {
             if (!firstFile) throw new Error("Error: No files uploaded");
             onFileUpload(firstFile);
+            setFile(firstFile);
             e.currentTarget.value = "";
           } catch (error) {
             console.error(error);
@@ -87,18 +96,23 @@ export const FileInput = memo(
 
       return (
         <div className="flex">
-          <input
-            onClick={handleClearInput}
-            onChange={handleFileChange}
-            type="file"
-            accept=".txt"
-            ref={innerRef}
-            {...inputProps}
-            className="block"
-          />
-          <button onClick={handleClearInput}>
-            <Cross2Icon />
-          </button>
+          <label className="cursor-pointer p-4 outline outline-black outline-1 rounded-md">
+            Upload a file
+            <input
+              onClick={handleClearInput}
+              onChange={handleFileChange}
+              type="file"
+              ref={innerRef}
+              {...inputProps}
+              className="hidden"
+            />
+          </label>
+
+          {file && (
+            <button onClick={handleClearInput}>
+              <Cross2Icon />
+            </button>
+          )}
         </div>
       );
     }

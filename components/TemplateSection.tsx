@@ -126,19 +126,31 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
 
   const content = useCallback(() => {
     return (
-      <div className="flex-col">
-        <TextInput value={name} onValueChange={setName} label="Name" />
+      <div className="flex-col w-[500px] ">
+        <TextInput
+          value={name}
+          onValueChange={setName}
+          label="Name"
+          className="w-full"
+        />
         <TextInput
           value={description}
           onValueChange={setDescription}
           label="Description"
+          className="w-full"
         />
-        <FileInput onFileUpload={onFileUpload} onFileClear={clearFile} />
-        <div> or copy and paste content here:</div>
+        {!stringifiedDocument && (
+          <FileInput
+            onFileUpload={onFileUpload}
+            onFileClear={clearFile}
+            accept=".txt"
+          />
+        )}
+        {!stringifiedDocument && <div> or copy and paste content here:</div>}
         <textarea
           onChange={handleTextAreaChange}
           value={stringifiedDocument}
-          className="bg-white w-full h-40"
+          className="bg-white w-full h-40 outline outline-1 outline-gray-200 rounded-md p-4"
         />
       </div>
     );
@@ -152,11 +164,12 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
   ]);
 
   const button = useMemo(() => {
+    if (!stringifiedDocument) return;
     return {
       text: "Create Template",
       onClick: createNewTemplate,
     };
-  }, [createNewTemplate]);
+  }, [createNewTemplate, stringifiedDocument]);
 
   return (
     <Dialog title="Upload file" content={content()} button={button}>
