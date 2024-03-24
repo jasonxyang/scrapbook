@@ -36,8 +36,9 @@ const Dialog = ({
       </Trigger>
 
       <Portal>
-        <Overlay />
-        <Content>
+        <Overlay className="fixed top-0 left-0 bg-black bg-opacity-50 w-full h-full" />
+        <Content className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-white text-black p-4">
+          <div></div>
           <Title>{title}</Title>
           {description && <Description>{description}</Description>}
           {content && content}
@@ -46,7 +47,7 @@ const Dialog = ({
               <button onClick={button.onClick}>{button.text}</button>
             </Close>
           )}
-          <Close asChild>
+          <Close asChild className="absolute top-2 right-2">
             <button onClick={onClose}>
               <Cross2Icon />
             </button>
