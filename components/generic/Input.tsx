@@ -45,13 +45,11 @@ export const TextInput = memo(
 type FileInputProps = {
   onFileUpload: (file: File) => void;
   onFileClear: () => void;
-  required?: InputHTMLAttributes<HTMLInputElement>["required"];
-  multiple?: InputHTMLAttributes<HTMLInputElement>["multiple"];
-};
+} & InputHTMLAttributes<HTMLInputElement>;
 
 export const FileInput = memo(
   forwardRef<HTMLInputElement, FileInputProps>(
-    ({ required, multiple, onFileUpload, onFileClear }, ref) => {
+    ({ onFileUpload, onFileClear, ...inputProps }, ref) => {
       const innerRef = useRef<HTMLInputElement>(null);
 
       useEffect(
@@ -88,20 +86,20 @@ export const FileInput = memo(
       );
 
       return (
-        <>
+        <div className="flex">
           <input
             onClick={handleClearInput}
             onChange={handleFileChange}
             type="file"
             accept=".txt"
             ref={innerRef}
-            required={required}
-            multiple={multiple}
+            {...inputProps}
+            className="block"
           />
           <button onClick={handleClearInput}>
             <Cross2Icon />
           </button>
-        </>
+        </div>
       );
     }
   )

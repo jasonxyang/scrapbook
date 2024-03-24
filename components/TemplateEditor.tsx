@@ -1,6 +1,6 @@
 import { templateSelector } from "@/recoil/template/selectors";
 import { memo, useState, useCallback, useMemo, PropsWithChildren } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { TextInput } from "./generic/Input";
 import { TemplateSection } from "@/types";
 import classNames from "classnames";
@@ -106,7 +106,24 @@ type TemplateEditorProps = {
   onBack?: () => void;
 };
 const TemplateEditor = ({ templateId }: TemplateEditorProps) => {
-  const template = useRecoilValue(templateSelector({ templateId }));
+  const [template, setTemplate] = useRecoilState(
+    templateSelector({ templateId })
+  );
+  const { setName, setDescription } = useMemo(() => {
+    return {
+      setName: (name: string) => {
+        setTemplate((prevTemplate) => {
+          return { ...prevTemplate, name };
+        });
+      },
+      setDescription: (description: string) => {
+        setTemplate((prevTemplate) => {
+          return { ...prevTemplate, description };
+        });
+      },
+    };
+  }, [setTemplate]);
+
   const [selectedSectionIndex, setSelectedSectionIndex] = useState<
     number | null | undefined
   >();

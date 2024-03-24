@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import Dialog from "./generic/Dialog";
-import { FileInput } from "./generic/Input";
+import { FileInput, TextInput } from "./generic/Input";
 import { Template, TemplateSection } from "@/types";
 import { nanoid } from "nanoid";
 import TemplateCard from "./TemplateCard";
@@ -25,7 +25,7 @@ const TemplateSection = () => {
   const renderEmptyState = useCallback(() => {
     return (
       <div>
-        <h3>No templates found</h3>
+        <h4>No templates found</h4>
       </div>
     );
   }, []);
@@ -38,16 +38,20 @@ const TemplateSection = () => {
   }, [templates]);
 
   return (
-    <section>
-      {hasTemplates ? renderTemplates() : renderEmptyState()}
+    <section className="flex items-center gap-4 overflow-x-scroll p-2">
       <CreateTemplateDialog>
-        <button className="w-fit cursor-pointer">Create template</button>
+        <button className="outline-black outline-1 outline w-fit h-fit px-2 py-1 rounded-sm">
+          Create template
+        </button>
       </CreateTemplateDialog>
+      {hasTemplates ? renderTemplates() : renderEmptyState()}
     </section>
   );
 };
 
 const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
+  const [name, setName] = useState<string>("Untitled Template");
+  const [description, setDescription] = useState<string>("");
   const [templates, setTemplates] = useRecoilState(templatesAtom);
 
   const [stringifiedDocument, setStringifiedDocument] = useState<string>("");
@@ -65,15 +69,15 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
       );
       const template = {
         id: nanoid(),
-        name: "",
-        description: "",
+        name,
+        description,
         sections,
         content: stringifiedDocument,
       } satisfies Template;
 
       return template;
     },
-    []
+    [description, name]
   );
 
   const handleTextAreaChange = useCallback(
@@ -123,6 +127,12 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
   const content = useCallback(() => {
     return (
       <div className="flex-col">
+        <TextInput value={name} onValueChange={setName} label="Name" />
+        <TextInput
+          value={description}
+          onValueChange={setDescription}
+          label="Description"
+        />
         <FileInput onFileUpload={onFileUpload} onFileClear={clearFile} />
         <div> or copy and paste content here:</div>
         <textarea
@@ -132,7 +142,14 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
         />
       </div>
     );
-  }, [onFileUpload, clearFile, handleTextAreaChange, stringifiedDocument]);
+  }, [
+    name,
+    description,
+    onFileUpload,
+    clearFile,
+    handleTextAreaChange,
+    stringifiedDocument,
+  ]);
 
   const button = useMemo(() => {
     return {

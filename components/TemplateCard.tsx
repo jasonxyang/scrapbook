@@ -30,6 +30,9 @@ const TemplateCard = ({ id }: TemplateCardProps) => {
   return (
     <div className="outline-gray-400 outline-1 outline w-fit h-fit p-4 rounded-md">
       <h4>{!!template.name ? template.name : "Template Draft"}</h4>
+      <p>
+        {!!template.description ? template.description : "Add a description..."}
+      </p>
       <div className="flex gap-2">
         <EditTemplateDialog id={template.id}>
           <button className="outline-black outline-1 outline w-fit h-fit px-2 py-1 rounded-sm">
@@ -58,15 +61,7 @@ type EditTemplateDialogProps = {
 };
 export const EditTemplateDialog = memo(
   ({ id, children }: PropsWithChildren<EditTemplateDialogProps>) => {
-    const [template, setTemplate] = useRecoilState(
-      templateSelector({ templateId: id })
-    );
-
-    const content = useCallback(
-      () => <TemplateEditor templateId={id} />,
-
-      [id]
-    );
+    const content = useCallback(() => <TemplateEditor templateId={id} />, [id]);
 
     return (
       <Dialog title="Edit Template" content={content()}>
