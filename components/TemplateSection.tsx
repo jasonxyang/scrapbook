@@ -1,8 +1,8 @@
 import templatesAtom from "@/recoil/template/templates";
 import {
   ReactNode,
+  SyntheticEvent,
   memo,
-  use,
   useCallback,
   useEffect,
   useMemo,
@@ -26,9 +26,6 @@ const TemplateSection = () => {
     return (
       <div>
         <h3>No templates found</h3>
-        <CreateTemplateDialog>
-          <button>Create template</button>
-        </CreateTemplateDialog>
       </div>
     );
   }, []);
@@ -43,7 +40,9 @@ const TemplateSection = () => {
   return (
     <section>
       {hasTemplates ? renderTemplates() : renderEmptyState()}
-      {}
+      <CreateTemplateDialog>
+        <button>Create template</button>
+      </CreateTemplateDialog>
     </section>
   );
 };
@@ -51,11 +50,10 @@ const TemplateSection = () => {
 const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
   const [templates, setTemplates] = useRecoilState(templatesAtom);
 
-  const [stringifiedDocument, setStringifiedDocument] = useState<string>();
+  const [stringifiedDocument, setStringifiedDocument] = useState<string>("");
 
   const processStringifiedDocumentIntoTemplate = useCallback(
     (stringifiedDocument: string) => {
-      // split strings into sections by double newline
       const sections = stringifiedDocument.split("\n\n").map(
         (section) =>
           ({
@@ -77,6 +75,13 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
     []
   );
 
+  const handleTextAreaChange = useCallback(
+    (e: SyntheticEvent<HTMLTextAreaElement, Event>) => {
+      setStringifiedDocument((e.target as HTMLTextAreaElement).value);
+    },
+    []
+  );
+
   const createNewTemplate = useCallback(() => {
     if (stringifiedDocument) {
       const newTemplate =
@@ -86,7 +91,12 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
         [newTemplate.id]: newTemplate,
       });
     }
-  }, [setTemplates, stringifiedDocument, templates]);
+  }, [
+    processStringifiedDocumentIntoTemplate,
+    setTemplates,
+    stringifiedDocument,
+    templates,
+  ]);
 
   const onFileUpload = useCallback((file: File) => {
     const reader = new FileReader();
@@ -111,12 +121,17 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
 
   const content = useCallback(() => {
     return (
-      <div>
+      <div className="flex-col">
         <FileInput onFileUpload={onFileUpload} onFileClear={clearFile} />
-        {!!stringifiedDocument && <div>{stringifiedDocument}</div>}
+        <div> or copy and paste content here:</div>
+        <textarea
+          onChange={handleTextAreaChange}
+          value={stringifiedDocument}
+          className="bg-white w-full h-40"
+        />
       </div>
     );
-  }, [clearFile, onFileUpload, stringifiedDocument]);
+  }, [onFileUpload, clearFile, handleTextAreaChange, stringifiedDocument]);
 
   const button = useMemo(() => {
     return {

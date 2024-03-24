@@ -1,13 +1,11 @@
 import { showAlert } from "@/utils.ts/client/errorHandling";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import {
-  MouseEvent,
   ChangeEvent,
   InputHTMLAttributes,
   forwardRef,
   memo,
   useCallback,
-  useState,
   useRef,
   useEffect,
 } from "react";
@@ -15,12 +13,11 @@ import {
 type TextInputProps = {
   value: string;
   onValueChange: (value: string) => void;
-  placeholder?: InputHTMLAttributes<HTMLInputElement>["placeholder"];
-  required?: InputHTMLAttributes<HTMLInputElement>["required"];
-};
+  label?: string;
+} & InputHTMLAttributes<HTMLInputElement>;
 export const TextInput = memo(
   forwardRef<HTMLInputElement, TextInputProps>(
-    ({ required, value, onValueChange, placeholder }, ref) => {
+    ({ value, onValueChange, label, ...inputProps }, ref) => {
       const handleOnChange = useCallback(
         (e: ChangeEvent<HTMLInputElement>) => {
           onValueChange(e.currentTarget.value);
@@ -29,15 +26,17 @@ export const TextInput = memo(
       );
 
       return (
-        <input
-          className="appearance-none border rounded pl-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          placeholder={placeholder}
-          value={value}
-          onChange={handleOnChange}
-          type="text"
-          ref={ref}
-          required={required}
-        />
+        <>
+          {label && <div>{label}</div>}
+          <input
+            className="appearance-none border rounded pl-2 py-2 px-3 leading-tight focus:outline-none focus:shadow-outline bg-gray-100"
+            value={value}
+            onChange={handleOnChange}
+            type="text"
+            ref={ref}
+            {...inputProps}
+          />
+        </>
       );
     }
   )

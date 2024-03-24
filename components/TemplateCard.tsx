@@ -1,6 +1,9 @@
 import templatesAtom from "@/recoil/template/templates";
-import { memo, useCallback } from "react";
+import { PropsWithChildren, memo, useCallback } from "react";
 import { useRecoilState } from "recoil";
+import Dialog from "./generic/Dialog";
+import { templateSelector } from "@/recoil/template/selectors";
+import TemplateEditor from "./TemplateEditor";
 
 type TemplateCardProps = {
   id: string;
@@ -21,9 +24,36 @@ const TemplateCard = ({ id }: TemplateCardProps) => {
     <div>
       <h2>{template.name}</h2>
       <p>id: {template.id}</p>
+      <EditTemplateDialog id={template.id}>
+        <button>Edit</button>
+      </EditTemplateDialog>
       <button onClick={handleDelete}>Delete</button>
     </div>
   );
 };
+
+type EditTemplateDialogProps = {
+  id: string;
+};
+export const EditTemplateDialog = memo(
+  ({ id, children }: PropsWithChildren<EditTemplateDialogProps>) => {
+    const [template, setTemplate] = useRecoilState(
+      templateSelector({ templateId: id })
+    );
+
+    const content = useCallback(
+      () => <TemplateEditor templateId={id} />,
+
+      [id]
+    );
+
+    return (
+      <Dialog title="Edit Template" content={content()}>
+        {children}
+      </Dialog>
+    );
+  }
+);
+EditTemplateDialog.displayName = "EditTemplateDialog";
 
 export default memo(TemplateCard);
