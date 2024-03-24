@@ -144,8 +144,8 @@ const TemplateEditor = ({ templateId }: TemplateEditorProps) => {
   }, [selection]);
 
   return (
-    <div className="flex">
-      <div className="flex-col">
+    <div className="flex h-[60vh]">
+      <div className="flex flex-col gap-4 h-full overflow-y-scroll p-1">
         {template.sections.map((_, index) => {
           return (
             <TemplateSectionInputGroup
@@ -283,7 +283,7 @@ const TemplateSectionInputGroup = memo(
     const renderKeywords = useCallback(() => {
       return (
         <div>
-          <div>Keywords</div>
+          <div className="font-semibold">Keywords</div>
           <div className="flex">
             {section.keywords.map((keyword, index) => (
               <span key={index}>
@@ -298,15 +298,46 @@ const TemplateSectionInputGroup = memo(
       );
     }, [deleteKeywordCallbacks, section.keywords]);
 
+    const deleteKeySentenceCallbacks = useMemo(() => {
+      return section.keywords.map((_, index) => {
+        return () => {
+          setKeywords(section.keywords.filter((_, i) => i !== index));
+        };
+      });
+    }, [section.keywords, setKeywords]);
+
+    const renderKeySentences = useCallback(() => {
+      return (
+        <div>
+          <div className="font-semibold">Key Sentences</div>
+          <div className="flex">
+            {section.keySentences.map((keySentence, index) => (
+              <div key={index}>
+                {keySentence}{" "}
+                <button onClick={deleteKeySentenceCallbacks[index]}>
+                  <Cross2Icon />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }, [deleteKeySentenceCallbacks, section.keySentences]);
+
     return (
       <div
-        className={classNames({
-          ["bg-gray-100"]: isSelected,
-        })}
+        className={classNames(
+          "outline outline-1 rounded-md flex flex-col gap-2 p-2 w-[300px]",
+          {
+            ["outline-black"]: isSelected,
+            ["outline-gray-200"]: !isSelected,
+          }
+        )}
       >
-        <h4>Section {sectionIndex + 1}</h4>
+        <div className="font-semibold">Section {sectionIndex + 1}</div>
         {renderTitleInput()}
         {renderKeywords()}
+        {renderKeySentences()}
       </div>
     );
   }
