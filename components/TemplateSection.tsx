@@ -41,7 +41,7 @@ const TemplateSection = () => {
     <section>
       {hasTemplates ? renderTemplates() : renderEmptyState()}
       <CreateTemplateDialog>
-        <button>Create template</button>
+        <button className="w-fit cursor-pointer">Create template</button>
       </CreateTemplateDialog>
     </section>
   );

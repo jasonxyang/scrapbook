@@ -7,10 +7,13 @@ import toneAtom from "@/recoil/tone";
 const ToneCheckboxGroup = () => {
   const [selectedTone, setSelectedTone] = useRecoilState(toneAtom);
 
-  const handleCheckboxChange = useCallback((tone: Tone) => {
-    if (tone === selectedTone) setSelectedTone(undefined);
-    else setSelectedTone(tone);
-  }, []);
+  const handleCheckboxChange = useCallback(
+    (tone: Tone) => {
+      if (tone === selectedTone) setSelectedTone(undefined);
+      else setSelectedTone(tone);
+    },
+    [selectedTone, setSelectedTone]
+  );
 
   return TONES.map((tone) => {
     return (

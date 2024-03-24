@@ -4,12 +4,15 @@ import { useRecoilState } from "recoil";
 import Dialog from "./generic/Dialog";
 import { templateSelector } from "@/recoil/template/selectors";
 import TemplateEditor from "./TemplateEditor";
+import selectedTemplateAtom from "@/recoil/template/selectedTemplate";
 
 type TemplateCardProps = {
   id: string;
 };
 const TemplateCard = ({ id }: TemplateCardProps) => {
   const [templates, setTemplates] = useRecoilState(templatesAtom);
+  const [selectedTemplateId, setSelectedTemplateId] =
+    useRecoilState(selectedTemplateAtom);
   const template = templates?.[id];
   const handleDelete = useCallback(() => {
     setTemplates((prevTemplates) => {
@@ -18,6 +21,10 @@ const TemplateCard = ({ id }: TemplateCardProps) => {
       return newTemplates;
     });
   }, [id, setTemplates]);
+
+  const handleUseTemplate = useCallback(() => {
+    setSelectedTemplateId(id);
+  }, [id, setSelectedTemplateId]);
 
   if (!template) return null;
   return (
@@ -28,6 +35,7 @@ const TemplateCard = ({ id }: TemplateCardProps) => {
         <button>Edit</button>
       </EditTemplateDialog>
       <button onClick={handleDelete}>Delete</button>
+      <button onClick={handleUseTemplate}>Use template</button>
     </div>
   );
 };

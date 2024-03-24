@@ -31,9 +31,7 @@ const Dialog = ({
 }: DialogProps) => {
   return (
     <Root>
-      <Trigger asChild>
-        <div>{children}</div>
-      </Trigger>
+      <Trigger asChild>{children}</Trigger>
 
       <Portal>
         <Overlay className="fixed top-0 left-0 bg-black bg-opacity-50 w-full h-full" />
