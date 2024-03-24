@@ -53,6 +53,7 @@ export type DocumentType = (typeof DOCUMENT_TYPES)[number];
 export type Template = {
   id: string;
   name: string;
+  description: string;
   sections: TemplateSection[];
   content: string;
 };

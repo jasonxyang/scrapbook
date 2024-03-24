@@ -66,6 +66,7 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
       const template = {
         id: nanoid(),
         name: "",
+        description: "",
         sections,
         content: stringifiedDocument,
       } satisfies Template;
