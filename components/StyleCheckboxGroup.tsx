@@ -1,4 +1,4 @@
-import styleAtom from "@/recoil/style";
+import styleAtom from "@/recoil/document/style";
 import { useRecoilState } from "recoil";
 import { STYLES, Style } from "@/types";
 import Checkbox from "./generic/Checkbox";

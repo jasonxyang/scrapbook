@@ -2,7 +2,7 @@ import { DOCUMENT_TYPES } from "@/types";
 import { memo, useMemo } from "react";
 import Select, { SelectItemProps } from "./generic/Select";
 import { useRecoilState } from "recoil";
-import documentTypeAtom from "@/recoil/documentType";
+import documentTypeAtom from "@/recoil/document/documentType";
 
 const DocumentTypeSelect = () => {
   const [currentDocumentType, setCurrentDocumentType] =

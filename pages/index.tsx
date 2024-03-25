@@ -40,10 +40,7 @@ export default function Home() {
             <RichTextEditor text={editorText} onTextChange={setEditorText} />
           </div>
           <div className="w-[20%]">
-            <ScrapbookPanel
-              editorText={editorText}
-              setEditorText={setEditorText}
-            />
+            <ScrapbookPanel />
           </div>
         </div>
       </main>
