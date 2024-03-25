@@ -7,7 +7,7 @@ export const selectedTemplateSelector = selector({
   get: ({ get }) => {
     const selectedTemplate = get(selectedTemplateAtom);
     const templates = get(templatesAtom);
-    return selectedTemplate ? templates[selectedTemplate] : undefined;
+    return selectedTemplate ? templates?.[selectedTemplate] : undefined;
   },
 });
 
@@ -20,13 +20,13 @@ export const templateSelector = selectorFamily({
     ({ templateId }: TemplateSelectorParams) =>
     ({ get }) => {
       const templates = get(templatesAtom);
-      const template = templates[templateId];
+      const template = templates?.[templateId];
       return template;
     },
   set:
     ({ templateId }: TemplateSelectorParams) =>
     ({ get, set }, newValue) => {
-      if (newValue instanceof DefaultValue) {
+      if (newValue instanceof DefaultValue || newValue === undefined) {
         set(templatesAtom, newValue);
         return;
       }

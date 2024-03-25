@@ -19,6 +19,7 @@ const TemplateSection = () => {
   const templates = useRecoilValue(templatesAtom);
 
   const hasTemplates = useMemo(() => {
+    if (!templates) return false;
     return !!Object.keys(templates).length;
   }, [templates]);
 
