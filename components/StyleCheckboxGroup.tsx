@@ -7,10 +7,13 @@ import { memo, useCallback } from "react";
 const StyleCheckboxGroup = () => {
   const [selectedStyle, setSelectedStyle] = useRecoilState(styleAtom);
 
-  const handleCheckboxChange = useCallback((style: Style) => {
-    if (style === selectedStyle) setSelectedStyle(undefined);
-    else setSelectedStyle(style);
-  }, []);
+  const handleCheckboxChange = useCallback(
+    (style: Style) => {
+      if (style === selectedStyle) setSelectedStyle(undefined);
+      else setSelectedStyle(style);
+    },
+    [selectedStyle, setSelectedStyle]
+  );
 
   return STYLES.map((style) => {
     return (
