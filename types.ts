@@ -102,9 +102,9 @@ export type GenerationType = (typeof GENERATION_TYPES)[number];
 export const isGenerationType = (value: any): value is GenerationType =>
   GENERATION_TYPES.includes(value as GenerationType);
 
-export type Generation = {
-  type: GenerationType;
-  content: string;
+export type Generation = SentenceGeneration;
+
+type GenerationParams = {
   sectionParams: Pick<TemplateSection, "title" | "keywords" | "keySentences">;
   documentParams: {
     documentType: DocumentType;
@@ -112,6 +112,19 @@ export type Generation = {
     style: Style;
     title: string;
   };
+};
+
+export type SentenceGeneration = {
+  type: "sentence";
+  content: string;
+} & GenerationParams;
+
+export const isSentenceGeneration = (value: any) => {
+  return (
+    isGenerationType(value.type) &&
+    value.type === "sentence" &&
+    string()(value.content).type === "success"
+  );
 };
 
 export const isGenerationSectionParams = (
@@ -137,8 +150,7 @@ export const isGenerationDocumentParams = (
 
 export const isGeneration = (value: any): value is Generation => {
   return (
-    isGenerationType(value.type) &&
-    string()(value.content).type === "success" &&
+    isSentenceGeneration(value) &&
     isGenerationSectionParams(value.sectionParams) &&
     isGenerationDocumentParams(value.documentParams)
   );

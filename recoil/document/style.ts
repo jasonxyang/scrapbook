@@ -1,6 +1,6 @@
 import { Style, isStyle } from "@/types";
 import { atom } from "recoil";
-import { getLocalStorageKey } from "@/utils.ts/client/localStorage";
+import { getLocalStorageKey } from "@/utils/client/localStorage";
 import { custom, voidable } from "@recoiljs/refine";
 import { syncEffect } from "recoil-sync";
 
@@ -11,7 +11,9 @@ const styleAtom = atom<Style | undefined>({
     syncEffect({
       itemKey: getLocalStorageKey("style"),
       refine: voidable(
-        custom<Style>((value) => (isStyle(value) ? value : null))
+        custom((value) =>
+          value === undefined || isStyle(value) ? value : null
+        )
       ),
     }),
   ],

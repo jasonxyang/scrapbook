@@ -9,7 +9,7 @@ const DocumentTitleInput = () => {
     <div className="inline-block">
       <label className="pr-4 font-bold">Document Title </label>
       <TextInput
-        value={currentTitle}
+        value={currentTitle ?? ""}
         onValueChange={setCurrentTitle}
         placeholder="Enter document title"
       />

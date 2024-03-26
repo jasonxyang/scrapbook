@@ -1,96 +1,35 @@
-import {
-  GenerateSentenceParams,
-  ResponseData,
-} from "@/pages/api/open_ai/generate_sentence";
-import { documentSelector } from "@/recoil/document/selectors";
 import { selectedTemplateGenerationsSelector } from "@/recoil/generation/selectors";
 import { selectedTemplateSelector } from "@/recoil/template/selectors";
-import { DocumentType, Generation, Style, Tone } from "@/types";
-import { showAlert } from "@/utils.ts/client/errorHandling";
-import { post } from "@/utils.ts/client/fetch";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useGenerations } from "@/utils/client/generations";
+import React, { useCallback, useEffect, useState } from "react";
 import { memo } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-
-const isValidDocumentParams = (documentParams: {
-  tone: Tone | undefined;
-  style: Style | undefined;
-  title: string;
-  documentType: DocumentType | undefined;
-}): documentParams is {
-  tone: Tone;
-  style: Style;
-  title: string;
-  documentType: DocumentType;
-} => {
-  return (
-    !!documentParams.tone &&
-    !!documentParams.style &&
-    !!documentParams.title &&
-    !!documentParams.documentType
-  );
-};
 
 const ScrapbookPanel = () => {
   const [isLoading, setIsLoading] = useState(true);
   const selectedTemplate = useRecoilValue(selectedTemplateSelector);
-  const { tone, documentType, style, title } = useRecoilValue(documentSelector);
   const [generations, setGenerations] = useRecoilState(
-    selectedTemplateGenerationsSelector
+    selectedTemplateGenerationsSelector({ type: "sentence" })
   );
 
-  const documentParams = useMemo(() => {
-    return { tone, documentType, style, title };
-  }, [documentType, style, title, tone]);
-
-  const isMissingDocumentParams = !isValidDocumentParams(documentParams);
-  const isMissingTemplateParams = !selectedTemplate;
+  const {
+    generateSentences,
+    isMissingDocumentParams,
+    isMissingTemplateParams,
+  } = useGenerations();
 
   useEffect(
-    function generateSentences() {
-      if (!isMissingDocumentParams && !isMissingTemplateParams) {
-        try {
-          (async () => {
-            const generationsPromises = selectedTemplate.sections.map(
-              (section) =>
-                post<ResponseData>("/api/open_ai/generate_sentence", {
-                  documentTitle: documentParams.title,
-                  documentStyle: documentParams.style,
-                  documentTone: documentParams.tone,
-                  documentType: documentParams.documentType,
-                  sectionTitle: section.title,
-                  sectionKeywords: section.keywords,
-                  sectionKeySentences: section.keySentences,
-                } satisfies GenerateSentenceParams)
-            );
-            const generationsResponses = await Promise.all(generationsPromises);
-            setGenerations([
-              generationsResponses
-                .filter((response) => !!response.data && response.successs)
-                .map((response) => response.data as Generation),
-            ]);
-          })();
-        } catch (error) {
-          showAlert((error as any).message);
-        }
-      }
-
-      setIsLoading(false);
+    function generateSentencesOnMount() {
+      (async () => {
+        setGenerations(await generateSentences());
+        setIsLoading(false);
+      })();
+      generateSentences();
     },
-    [
-      documentParams,
-      documentType,
-      isMissingDocumentParams,
-      isMissingTemplateParams,
-      selectedTemplate,
-      setGenerations,
-      style,
-      title,
-      tone,
-    ]
+    [generateSentences, setGenerations]
   );
 
-  const renderGenerations = useCallback(() => {
+  const renderSentenceGenerations = useCallback(() => {
     if (!generations) return null;
     return generations.map((sectionGenerations, index) => (
       <div key={index}>
@@ -126,7 +65,7 @@ const ScrapbookPanel = () => {
       {isLoading && renderLoading()}
       {(isMissingDocumentParams || isMissingTemplateParams) &&
         renderMissingParams()}
-      {renderGenerations()}
+      {renderSentenceGenerations()}
       <button
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         // onClick={handleInsertText}

@@ -5,7 +5,7 @@ import {
   TemplateSection,
   Tone,
 } from "@/types";
-import { openai } from "@/utils.ts/server/open_ai";
+import { openai } from "@/utils/server/open_ai";
 import { NextApiRequest, NextApiResponse } from "next";
 import {
   ChatCompletionSystemMessageParam,

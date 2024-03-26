@@ -30,8 +30,7 @@ export const templateSelector = selectorFamily({
         set(templatesAtom, newValue);
         return;
       }
-      const templates = { ...get(templatesAtom) };
-      templates[templateId] = newValue;
-      set(templatesAtom, templates);
+      const templates = get(templatesAtom);
+      set(templatesAtom, { ...templates, [templateId]: newValue });
     },
 });

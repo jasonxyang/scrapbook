@@ -2,7 +2,7 @@ import { templateSelector } from "@/recoil/template/selectors";
 import { memo, useState, useCallback, useMemo, PropsWithChildren } from "react";
 import { useRecoilState } from "recoil";
 import { TextInput } from "./generic/Input";
-import { TemplateSection } from "@/types";
+import { TemplateSection, isTemplate } from "@/types";
 import classNames from "classnames";
 import ContextMenu, { ContextMenuItemProps } from "./generic/ContextMenu";
 import { Cross2Icon } from "@radix-ui/react-icons";
@@ -109,20 +109,6 @@ const TemplateEditor = ({ templateId }: TemplateEditorProps) => {
   const [template, setTemplate] = useRecoilState(
     templateSelector({ templateId })
   );
-  const { setName, setDescription } = useMemo(() => {
-    return {
-      setName: (name: string) => {
-        setTemplate((prevTemplate) => {
-          return { ...prevTemplate, name };
-        });
-      },
-      setDescription: (description: string) => {
-        setTemplate((prevTemplate) => {
-          return { ...prevTemplate, description };
-        });
-      },
-    };
-  }, [setTemplate]);
 
   const [selectedSectionIndex, setSelectedSectionIndex] = useState<
     number | null | undefined
@@ -146,7 +132,7 @@ const TemplateEditor = ({ templateId }: TemplateEditorProps) => {
   return (
     <div className="flex h-[60vh]">
       <div className="flex flex-col gap-4 h-full overflow-y-scroll p-1">
-        {template.sections.map((_, index) => {
+        {template?.sections.map((_, index) => {
           return (
             <TemplateSectionInputGroup
               key={index}
@@ -160,7 +146,7 @@ const TemplateEditor = ({ templateId }: TemplateEditorProps) => {
       </div>
 
       <div className="p-4 whitespace-pre-wrap w-96 h-80 overflow-y-scroll">
-        {template.sections.map((section, index) => {
+        {template?.sections.map((section, index) => {
           return (
             <TemplateEditorContextMenu
               key={index}
@@ -215,7 +201,7 @@ const TemplateEditorContextMenu = ({
         label: "Add keyword",
         onClick: () => {
           if (!selection) return;
-          const keywords = [...section.keywords, selection];
+          const keywords = [...(section?.keywords ?? []), selection];
           setKeywords(keywords);
         },
       },
@@ -223,14 +209,14 @@ const TemplateEditorContextMenu = ({
         label: "Add key sentence",
         onClick: () => {
           if (!selection) return;
-          const sentences = [...section.keySentences, selection];
+          const sentences = [...(section?.keySentences ?? []), selection];
           setKeySentences(sentences);
         },
       },
     ];
   }, [
-    section.keySentences,
-    section.keywords,
+    section?.keySentences,
+    section?.keywords,
     selection,
     setKeySentences,
     setKeywords,
@@ -264,31 +250,31 @@ const TemplateSectionInputGroup = memo(
     const renderTitleInput = useCallback(() => {
       return (
         <TextInput
-          value={section.title}
+          value={section?.title ?? ""}
           onValueChange={setTitle}
           label="Title"
           onFocus={handleOnFocus}
         />
       );
-    }, [handleOnFocus, section.title, setTitle]);
+    }, [handleOnFocus, section?.title, setTitle]);
 
     const deleteKeywordCallbacks = useMemo(() => {
-      return section.keywords.map((_, index) => {
+      return section?.keywords.map((_, index) => {
         return () => {
           setKeywords(section.keywords.filter((_, i) => i !== index));
         };
       });
-    }, [section.keywords, setKeywords]);
+    }, [section?.keywords, setKeywords]);
 
     const renderKeywords = useCallback(() => {
       return (
         <div>
           <div className="font-semibold">Keywords</div>
           <div className="flex">
-            {section.keywords.map((keyword, index) => (
+            {section?.keywords.map((keyword, index) => (
               <span key={index}>
                 {keyword}{" "}
-                <button onClick={deleteKeywordCallbacks[index]}>
+                <button onClick={deleteKeywordCallbacks?.[index]}>
                   <Cross2Icon />
                 </button>
               </span>
@@ -296,25 +282,25 @@ const TemplateSectionInputGroup = memo(
           </div>
         </div>
       );
-    }, [deleteKeywordCallbacks, section.keywords]);
+    }, [deleteKeywordCallbacks, section?.keywords]);
 
     const deleteKeySentenceCallbacks = useMemo(() => {
-      return section.keywords.map((_, index) => {
+      return section?.keywords.map((_, index) => {
         return () => {
-          setKeywords(section.keywords.filter((_, i) => i !== index));
+          setKeywords(section?.keywords.filter((_, i) => i !== index));
         };
       });
-    }, [section.keywords, setKeywords]);
+    }, [section?.keywords, setKeywords]);
 
     const renderKeySentences = useCallback(() => {
       return (
         <div>
           <div className="font-semibold">Key Sentences</div>
           <div className="flex">
-            {section.keySentences.map((keySentence, index) => (
+            {section?.keySentences.map((keySentence, index) => (
               <div key={index}>
                 {keySentence}{" "}
-                <button onClick={deleteKeySentenceCallbacks[index]}>
+                <button onClick={deleteKeySentenceCallbacks?.[index]}>
                   <Cross2Icon />
                 </button>
               </div>
@@ -322,7 +308,7 @@ const TemplateSectionInputGroup = memo(
           </div>
         </div>
       );
-    }, [deleteKeySentenceCallbacks, section.keySentences]);
+    }, [deleteKeySentenceCallbacks, section?.keySentences]);
 
     return (
       <div
@@ -357,17 +343,23 @@ const useTemplateSection = ({
   );
   const { section, setSection } = useMemo(() => {
     return {
-      section: template.sections[sectionIndex],
+      section: template?.sections[sectionIndex],
       setSection: (sectionUpdates: Partial<TemplateSection>) => {
-        const prevSection = template.sections[sectionIndex];
-        const newSections = [...template.sections];
-        newSections[sectionIndex] = { ...prevSection, ...sectionUpdates };
         setTemplate((prevTemplate) => {
-          return { ...prevTemplate, sections: newSections };
+          if (!isTemplate(prevTemplate)) return undefined;
+          return {
+            ...prevTemplate,
+            sections:
+              prevTemplate?.sections.map((section, index) => {
+                if (index === sectionIndex)
+                  return { ...section, ...sectionUpdates };
+                return section;
+              }) ?? [],
+          };
         });
       },
     };
-  }, [sectionIndex, setTemplate, template.sections]);
+  }, [sectionIndex, setTemplate, template?.sections]);
 
   const { setTitle, setKeywords, setKeySentences } = useMemo(() => {
     return {

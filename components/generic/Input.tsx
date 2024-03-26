@@ -1,4 +1,4 @@
-import { showAlert } from "@/utils.ts/client/errorHandling";
+import { showAlert } from "@/utils/client/errorHandling";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import classNames from "classnames";
 import {

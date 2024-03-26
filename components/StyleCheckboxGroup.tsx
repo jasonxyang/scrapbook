@@ -9,10 +9,11 @@ const StyleCheckboxGroup = () => {
 
   const handleCheckboxChange = useCallback(
     (style: Style) => {
-      if (style === selectedStyle) setSelectedStyle(undefined);
-      else setSelectedStyle(style);
+      setSelectedStyle((prevStyle) =>
+        prevStyle === style ? undefined : style
+      );
     },
-    [selectedStyle, setSelectedStyle]
+    [setSelectedStyle]
   );
 
   return STYLES.map((style) => {

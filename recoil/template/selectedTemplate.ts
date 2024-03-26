@@ -1,4 +1,4 @@
-import { getLocalStorageKey } from "@/utils.ts/client/localStorage";
+import { getLocalStorageKey } from "@/utils/client/localStorage";
 import { string, voidable } from "@recoiljs/refine";
 import { atom } from "recoil";
 import { syncEffect } from "recoil-sync";
