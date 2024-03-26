@@ -1,6 +1,7 @@
-import { DocumentType, isDocumentType } from "@/types";
+import { DocumentType } from "@/types";
+import { documentTypeChecker } from "@/utils/client/checkers";
 import { getLocalStorageKey } from "@/utils/client/localStorage";
-import { custom, voidable } from "@recoiljs/refine";
+import { voidable } from "@recoiljs/refine";
 import { atom } from "recoil";
 import { syncEffect } from "recoil-sync";
 
@@ -10,11 +11,7 @@ const documentTypeAtom = atom<DocumentType | undefined>({
   effects: [
     syncEffect({
       itemKey: getLocalStorageKey("documentType"),
-      refine: voidable(
-        custom((value) =>
-          value === undefined || isDocumentType(value) ? value : null
-        )
-      ),
+      refine: voidable(documentTypeChecker()),
     }),
   ],
 });

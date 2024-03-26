@@ -1,20 +1,22 @@
-import { Template, isTemplate } from "@/types";
+import { Template } from "@/types";
+import { templateChecker } from "@/utils/client/checkers";
 import { getLocalStorageKey } from "@/utils/client/localStorage";
 import { custom, voidable } from "@recoiljs/refine";
 import { atom } from "recoil";
 import { syncEffect } from "recoil-sync";
 
+const TEMPLATES_ATOM_KEY = "templates";
 const templatesAtom = atom<{ [id: string]: Template } | undefined>({
-  key: "templates",
+  key: TEMPLATES_ATOM_KEY,
   default: undefined,
   effects: [
     syncEffect({
-      itemKey: getLocalStorageKey("templates"),
+      itemKey: getLocalStorageKey(TEMPLATES_ATOM_KEY),
       refine: voidable(
         custom((value) =>
           value === undefined ||
-          Object.values(value as { [id: string]: Template }).every((template) =>
-            isTemplate(template)
+          Object.values(value as { [id: string]: Template }).every(
+            (template) => templateChecker()(template).type === "success"
           )
             ? (value as { [id: string]: Template })
             : null

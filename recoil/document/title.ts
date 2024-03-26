@@ -3,12 +3,13 @@ import { getLocalStorageKey } from "@/utils/client/localStorage";
 import { string, voidable } from "@recoiljs/refine";
 import { syncEffect } from "recoil-sync";
 
+const TITLE_ATOM_KEY = "title";
 const titleAtom = atom<string | undefined>({
-  key: "title",
+  key: TITLE_ATOM_KEY,
   default: "",
   effects: [
     syncEffect({
-      itemKey: getLocalStorageKey("title"),
+      itemKey: getLocalStorageKey(TITLE_ATOM_KEY),
       refine: voidable(string()),
     }),
   ],

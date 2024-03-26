@@ -54,8 +54,13 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
   const [name, setName] = useState<string>("Untitled Template");
   const [description, setDescription] = useState<string>("");
   const [templates, setTemplates] = useRecoilState(templatesAtom);
-
   const [stringifiedDocument, setStringifiedDocument] = useState<string>("");
+
+  const clear = useCallback(() => {
+    setName("Untitled Template");
+    setDescription("");
+    setStringifiedDocument("");
+  }, []);
 
   const processStringifiedDocumentIntoTemplate = useCallback(
     (stringifiedDocument: string) => {
@@ -96,8 +101,10 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
         ...templates,
         [newTemplate.id]: newTemplate,
       });
+      clear();
     }
   }, [
+    clear,
     processStringifiedDocumentIntoTemplate,
     setTemplates,
     stringifiedDocument,
@@ -115,15 +122,6 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
   const clearFile = useCallback(() => {
     setStringifiedDocument("");
   }, []);
-
-  useEffect(
-    function clearFileOnUnmount() {
-      return () => {
-        clearFile();
-      };
-    },
-    [clearFile]
-  );
 
   const content = useCallback(() => {
     return (
@@ -173,7 +171,12 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
   }, [createNewTemplate, stringifiedDocument]);
 
   return (
-    <Dialog title="Upload file" content={content()} button={button}>
+    <Dialog
+      title="Upload file"
+      content={content()}
+      button={button}
+      onClose={clear}
+    >
       {children}
     </Dialog>
   );

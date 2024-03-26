@@ -1,4 +1,4 @@
-import { ChangeEvent, memo, useCallback } from "react";
+import { memo } from "react";
 import { TextInput } from "./generic/Input";
 import { useRecoilState } from "recoil";
 import titleAtom from "@/recoil/document/title";

@@ -2,7 +2,7 @@ import { templateSelector } from "@/recoil/template/selectors";
 import { memo, useState, useCallback, useMemo, PropsWithChildren } from "react";
 import { useRecoilState } from "recoil";
 import { TextInput } from "./generic/Input";
-import { TemplateSection, isTemplate } from "@/types";
+import { TemplateSection } from "@/types";
 import classNames from "classnames";
 import ContextMenu, { ContextMenuItemProps } from "./generic/ContextMenu";
 import { Cross2Icon } from "@radix-ui/react-icons";
@@ -345,21 +345,18 @@ const useTemplateSection = ({
     return {
       section: template?.sections[sectionIndex],
       setSection: (sectionUpdates: Partial<TemplateSection>) => {
-        setTemplate((prevTemplate) => {
-          if (!isTemplate(prevTemplate)) return undefined;
-          return {
-            ...prevTemplate,
-            sections:
-              prevTemplate?.sections.map((section, index) => {
-                if (index === sectionIndex)
-                  return { ...section, ...sectionUpdates };
-                return section;
-              }) ?? [],
-          };
+        if (!template) return;
+        setTemplate({
+          ...template,
+          sections: template?.sections.map((section, index) => {
+            if (index === sectionIndex)
+              return { ...section, ...sectionUpdates };
+            return section;
+          }),
         });
       },
     };
-  }, [sectionIndex, setTemplate, template?.sections]);
+  }, [sectionIndex, setTemplate, template]);
 
   const { setTitle, setKeywords, setKeySentences } = useMemo(() => {
     return {

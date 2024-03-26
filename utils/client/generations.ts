@@ -4,37 +4,12 @@ import {
 } from "@/pages/api/open_ai/generate_sentence";
 import { documentSelector } from "@/recoil/document/selectors";
 import { selectedTemplateSelector } from "@/recoil/template/selectors";
-import {
-  Generation,
-  Style,
-  Tone,
-  isDocumentType,
-  isStyle,
-  isTone,
-} from "@/types";
+import { Generation } from "@/types";
 import { useMemo, useCallback } from "react";
 import { useRecoilValue } from "recoil";
 import { showAlert } from "./errorHandling";
 import { post } from "./fetch";
-
-const isValidDocumentParams = (documentParams: {
-  tone: Tone | undefined;
-  style: Style | undefined;
-  title: string | undefined;
-  documentType: DocumentType | string | undefined;
-}): documentParams is {
-  tone: Tone;
-  style: Style;
-  title: string;
-  documentType: DocumentType;
-} => {
-  return (
-    isTone(documentParams.tone) &&
-    isStyle(documentParams.style) &&
-    !!documentParams.title &&
-    isDocumentType(documentParams.documentType)
-  );
-};
+import { documentParamsChecker } from "./checkers";
 
 export const useGenerations = () => {
   const selectedTemplate = useRecoilValue(selectedTemplateSelector);
@@ -44,7 +19,8 @@ export const useGenerations = () => {
     return { tone, documentType, style, title };
   }, [documentType, style, title, tone]);
 
-  const isMissingDocumentParams = !isValidDocumentParams(documentParams);
+  const isMissingDocumentParams =
+    documentParamsChecker()(documentParams).type === "failure";
   const isMissingTemplateParams = !selectedTemplate;
 
   const generateSentences = useCallback(async (): Promise<Generation[][]> => {
@@ -52,10 +28,10 @@ export const useGenerations = () => {
     try {
       const generationsPromises = selectedTemplate.sections.map((section) =>
         post<ResponseData>("/api/open_ai/generate_sentence", {
-          documentTitle: documentParams.title,
-          documentStyle: documentParams.style,
-          documentTone: documentParams.tone,
-          documentType: documentParams.documentType,
+          documentTitle: documentParams.title!,
+          documentStyle: documentParams.style!,
+          documentTone: documentParams.tone!,
+          documentType: documentParams.documentType!,
           sectionTitle: section.title,
           sectionKeywords: section.keywords,
           sectionKeySentences: section.keySentences,
