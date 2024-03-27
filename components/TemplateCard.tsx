@@ -1,10 +1,11 @@
 import templatesAtom from "@/recoil/template/templates";
 import { PropsWithChildren, memo, useCallback } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import Dialog from "./generic/Dialog";
-import { templateSelector } from "@/recoil/template/selectors";
 import TemplateEditor from "./TemplateEditor";
 import selectedTemplateAtom from "@/recoil/template/selectedTemplate";
+import classNames from "classnames";
+import { selectedTemplateGenerationsSelector } from "@/recoil/generation/selectors";
 
 type TemplateCardProps = {
   id: string;
@@ -13,6 +14,10 @@ const TemplateCard = ({ id }: TemplateCardProps) => {
   const [templates, setTemplates] = useRecoilState(templatesAtom);
   const [selectedTemplateId, setSelectedTemplateId] =
     useRecoilState(selectedTemplateAtom);
+  const setSelectedTemplateGenerations = useSetRecoilState(
+    selectedTemplateGenerationsSelector({ type: "sentence" })
+  );
+  const isSelected = id === selectedTemplateId;
   const template = templates?.[id];
   const handleDelete = useCallback(() => {
     setTemplates((prevTemplates) => {
@@ -20,15 +25,24 @@ const TemplateCard = ({ id }: TemplateCardProps) => {
       delete newTemplates[id];
       return newTemplates;
     });
-  }, [id, setTemplates]);
+    setSelectedTemplateGenerations(undefined);
+  }, [id, setSelectedTemplateGenerations, setTemplates]);
 
-  const handleUseTemplate = useCallback(() => {
-    setSelectedTemplateId(id);
-  }, [id, setSelectedTemplateId]);
+  const handleUseTemplate = useCallback(async () => {
+    if (selectedTemplateId === id) setSelectedTemplateId(undefined);
+    else {
+      setSelectedTemplateId(id);
+    }
+  }, [id, selectedTemplateId, setSelectedTemplateId]);
 
   if (!template) return null;
   return (
-    <div className="outline-gray-400 outline-1 outline w-fit h-fit p-4 rounded-md">
+    <div
+      className={classNames(
+        "outline-gray-400 outline-1 outline w-fit h-fit p-4 rounded-md",
+        { ["outline-blue-800"]: isSelected }
+      )}
+    >
       <h4>{!!template.name ? template.name : "Template Draft"}</h4>
       <p>
         {!!template.description ? template.description : "Add a description..."}

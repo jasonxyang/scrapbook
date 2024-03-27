@@ -110,8 +110,8 @@ const TemplateEditor = ({ templateId }: TemplateEditorProps) => {
     templateSelector({ templateId })
   );
 
-  const [selectedSectionIndex, setSelectedSectionIndex] = useState<
-    number | null | undefined
+  const [selectedSectionId, setSelectedSectionId] = useState<
+    string | null | undefined
   >();
 
   const [selection, setSelection] = useState<string>("");
@@ -132,33 +132,33 @@ const TemplateEditor = ({ templateId }: TemplateEditorProps) => {
   return (
     <div className="flex h-[60vh]">
       <div className="flex flex-col gap-4 h-full overflow-y-scroll p-1">
-        {template?.sections.map((_, index) => {
+        {Object.values(template?.sections ?? {}).map((section, index) => {
           return (
             <TemplateSectionInputGroup
               key={index}
               templateId={templateId}
-              sectionIndex={index}
-              setSelectedSectionIndex={setSelectedSectionIndex}
-              isSelected={selectedSectionIndex === index}
+              sectionId={section.id}
+              setSelectedSectionId={setSelectedSectionId}
+              isSelected={selectedSectionId === section.id}
             />
           );
         })}
       </div>
 
-      <div className="p-4 whitespace-pre-wrap w-96 h-80 overflow-y-scroll">
-        {template?.sections.map((section, index) => {
+      <div className="p-4 whitespace-pre-wrap w-96 h-[60vh] overflow-y-scroll flex flex-col gap-4">
+        {Object.values(template?.sections ?? {}).map((section, index) => {
           return (
             <TemplateEditorContextMenu
               key={index}
-              sectionIndex={index}
+              sectionId={section.id}
               templateId={templateId}
               selection={selection}
             >
               <div
                 className={classNames({
-                  ["bg-gray-100"]: selectedSectionIndex === index,
+                  ["bg-gray-100"]: selectedSectionId === section.id,
                 })}
-                onMouseDown={() => setSelectedSectionIndex(index)}
+                onMouseDown={() => setSelectedSectionId(section.id)}
                 onMouseUp={handleUpdateSelection}
               >
                 {buildDomNodesFromSection(section)}
@@ -173,19 +173,19 @@ const TemplateEditor = ({ templateId }: TemplateEditorProps) => {
 
 type TemplateEditorContextMenuProps = {
   templateId: string;
-  sectionIndex: number;
+  sectionId: string;
   selection: string;
 };
 const TemplateEditorContextMenu = ({
   templateId,
-  sectionIndex,
+  sectionId,
   selection,
   children,
 }: PropsWithChildren<TemplateEditorContextMenuProps>) => {
   const { section, setTitle, setKeywords, setKeySentences } =
     useTemplateSection({
       templateId,
-      sectionIndex: sectionIndex,
+      sectionId,
     });
 
   const contextMenuItems = useMemo((): ContextMenuItemProps[] => {
@@ -227,25 +227,25 @@ const TemplateEditorContextMenu = ({
 
 type TemplateSectionInputGroupProps = {
   templateId: string;
-  sectionIndex: number;
-  setSelectedSectionIndex: (index: number) => void;
+  sectionId: string;
+  setSelectedSectionId: (id: string) => void;
   isSelected?: boolean;
 };
 const TemplateSectionInputGroup = memo(
   ({
     templateId,
-    sectionIndex,
-    setSelectedSectionIndex,
+    sectionId,
+    setSelectedSectionId,
     isSelected,
   }: TemplateSectionInputGroupProps) => {
     const { section, setTitle, setKeywords } = useTemplateSection({
       templateId,
-      sectionIndex,
+      sectionId,
     });
 
     const handleOnFocus = useCallback(() => {
-      setSelectedSectionIndex(sectionIndex);
-    }, [sectionIndex, setSelectedSectionIndex]);
+      setSelectedSectionId(sectionId);
+    }, [sectionId, setSelectedSectionId]);
 
     const renderTitleInput = useCallback(() => {
       return (
@@ -320,7 +320,7 @@ const TemplateSectionInputGroup = memo(
           }
         )}
       >
-        <div className="font-semibold">Section {sectionIndex + 1}</div>
+        <div className="font-semibold">Section {sectionId}</div>
         {renderTitleInput()}
         {renderKeywords()}
         {renderKeySentences()}
@@ -332,31 +332,33 @@ TemplateSectionInputGroup.displayName = "TemplateSectionInputGroup";
 
 type UseTemplateSectionParams = {
   templateId: string;
-  sectionIndex: number;
+  sectionId: string;
 };
 const useTemplateSection = ({
   templateId,
-  sectionIndex,
+  sectionId,
 }: UseTemplateSectionParams) => {
   const [template, setTemplate] = useRecoilState(
     templateSelector({ templateId })
   );
   const { section, setSection } = useMemo(() => {
     return {
-      section: template?.sections[sectionIndex],
+      section: template?.sections[sectionId],
       setSection: (sectionUpdates: Partial<TemplateSection>) => {
         if (!template) return;
         setTemplate({
           ...template,
-          sections: template?.sections.map((section, index) => {
-            if (index === sectionIndex)
-              return { ...section, ...sectionUpdates };
-            return section;
-          }),
+          sections: {
+            ...template.sections,
+            [sectionId]: {
+              ...template.sections[sectionId],
+              ...sectionUpdates,
+            },
+          },
         });
       },
     };
-  }, [sectionIndex, setTemplate, template]);
+  }, [sectionId, setTemplate, template]);
 
   const { setTitle, setKeywords, setKeySentences } = useMemo(() => {
     return {

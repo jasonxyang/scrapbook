@@ -6,6 +6,7 @@ import {
   Tone,
 } from "@/types";
 import { openai } from "@/utils/server/open_ai";
+import { nanoid } from "nanoid";
 import { NextApiRequest, NextApiResponse } from "next";
 import {
   ChatCompletionSystemMessageParam,
@@ -84,15 +85,24 @@ const generateSentence = async ({
   return completion.choices[0].message.content;
 };
 
-export type ResponseData = { successs: boolean; data: Generation | null };
+export type GenerateSentenceResponseData = {
+  successs: boolean;
+  data: Generation | null;
+};
+export type GenerateSentenceRequestBody = GenerateSentenceSystemMessagesParams &
+  GenerateSentenceUserMessagesParams & {
+    generationId?: string;
+    sectionId: string;
+  };
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ResponseData>
+  res: NextApiResponse<GenerateSentenceResponseData>
 ) {
   switch (req.method) {
     case "POST": {
       const {
+        sectionId,
         sectionTitle,
         sectionKeywords,
         sectionKeySentences,
@@ -100,6 +110,7 @@ export default async function handler(
         documentType,
         documentStyle,
         documentTone,
+        generationId,
       } = req.body;
 
       const sentence = await generateSentence({
@@ -116,6 +127,7 @@ export default async function handler(
         successs: !!sentence,
         data: sentence
           ? {
+              id: generationId ?? nanoid(),
               type: "sentence",
               content: sentence,
               documentParams: {
@@ -125,6 +137,7 @@ export default async function handler(
                 title: documentTitle,
               },
               sectionParams: {
+                id: sectionId,
                 title: sectionTitle,
                 keywords: sectionKeywords,
                 keySentences: sectionKeySentences,

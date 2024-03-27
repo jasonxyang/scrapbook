@@ -54,7 +54,7 @@ export type Template = {
   id: string;
   name: string;
   description: string;
-  sections: TemplateSection[];
+  sections: { [sectionId: string]: TemplateSection };
   content: string;
 };
 
@@ -67,8 +67,15 @@ export type GenerationType = (typeof GENERATION_TYPES)[number];
 
 export type Generation = SentenceGeneration;
 
+type BaseGeneration = {
+  id: string;
+};
+
 type GenerationParams = {
-  sectionParams: Pick<TemplateSection, "title" | "keywords" | "keySentences">;
+  sectionParams: Pick<
+    TemplateSection,
+    "title" | "keywords" | "keySentences" | "id"
+  >;
   documentParams: {
     documentType: DocumentType;
     tone: Tone;
@@ -77,10 +84,11 @@ type GenerationParams = {
   };
 };
 
-export type SentenceGeneration = {
-  type: "sentence";
-  content: string;
-} & GenerationParams;
+export type SentenceGeneration = BaseGeneration &
+  GenerationParams & {
+    type: "sentence";
+    content: string;
+  };
 
 export type DocumentParams = {
   tone: Tone;
@@ -90,7 +98,13 @@ export type DocumentParams = {
 };
 
 export type SectionParams = {
+  id: string;
   title: string;
   keywords: string[];
   keySentences: string[];
+};
+
+export type GenerationProgress = {
+  generationId: string;
+  isGenerating: boolean;
 };

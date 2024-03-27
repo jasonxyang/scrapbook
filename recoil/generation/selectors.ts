@@ -32,42 +32,10 @@ export const selectedTemplateGenerationsSelector = selectorFamily({
         ...prevGenerations,
         [selectedTemplateId]: {
           ...prevGenerations?.[selectedTemplateId],
-          [type]: newValue,
-        },
-      });
-    },
-});
-
-type GenerationSelectorParams = {
-  templateId: string;
-  sectionIndex: number;
-  type: GenerationType;
-};
-export const generationSelector = selectorFamily({
-  key: "generationSelector",
-  get:
-    ({ templateId, sectionIndex, type }: GenerationSelectorParams) =>
-    ({ get }) => {
-      const generations = get(generationsAtom);
-      return generations?.[templateId]?.[type]?.[sectionIndex];
-    },
-  set:
-    ({ templateId, sectionIndex, type }: GenerationSelectorParams) =>
-    ({ get, set }, newValue) => {
-      if (newValue instanceof DefaultValue || newValue === undefined) {
-        set(generationsAtom, newValue);
-        return;
-      }
-      const prevGenerations = get(generationsAtom);
-      set(generationsAtom, {
-        ...prevGenerations,
-        [templateId]: {
-          ...prevGenerations?.[templateId],
-          [type]: prevGenerations?.[templateId]?.[type]?.map(
-            (sectionGenerations, index) => {
-              return index === sectionIndex ? newValue : sectionGenerations;
-            }
-          ),
+          [type]: {
+            ...prevGenerations?.[selectedTemplateId]?.[type],
+            ...newValue,
+          },
         },
       });
     },

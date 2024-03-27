@@ -16,14 +16,11 @@ export default function App({ Component, pageProps }: AppProps) {
     <RecoilRoot>
       <RecoilSync
         read={(key) => {
-          console.log("reading item key", key);
           const value = localStorage.getItem(getLocalStorageKey(key));
           if (value) return JSON.parse(value);
         }}
         write={({ diff }) => {
-          console.log(diff);
           for (const [key, value] of diff) {
-            console.log("writing item key", key, value);
             localStorage.setItem(
               getLocalStorageKey(key),
               JSON.stringify(value)

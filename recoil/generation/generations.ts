@@ -3,7 +3,11 @@ import { atom } from "recoil";
 
 const generationsAtom = atom<
   | {
-      [templateId: string]: { [type in GenerationType]?: Generation[][] };
+      [templateId: string]: {
+        [type in GenerationType]?: {
+          [sectionId: string]: { [generationId: string]: Generation };
+        };
+      };
     }
   | undefined
 >({

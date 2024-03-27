@@ -9,7 +9,7 @@ import {
   TemplateSection,
   Tone,
 } from "@/types";
-import { array, custom, string } from "@recoiljs/refine";
+import { array, custom, dict, string } from "@recoiljs/refine";
 
 export const styleChecker = () =>
   custom((value) => {
@@ -45,7 +45,7 @@ export const templateChecker = () =>
       string()((value as Template).name).type === "success" &&
       string()((value as Template).content).type === "success" &&
       string()((value as Template).description).type === "success" &&
-      array(templateSectionChecker())((value as Template).sections).type ===
+      dict(templateSectionChecker())((value as Template).sections).type ===
         "success"
       ? (value as Template)
       : null;

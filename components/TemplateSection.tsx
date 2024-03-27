@@ -4,7 +4,6 @@ import {
   SyntheticEvent,
   memo,
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -64,15 +63,21 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
 
   const processStringifiedDocumentIntoTemplate = useCallback(
     (stringifiedDocument: string) => {
-      const sections = stringifiedDocument.split("\n\n").map(
-        (section) =>
-          ({
-            title: "",
-            keywords: [],
-            keySentences: [],
-            content: section,
-          } satisfies TemplateSection)
-      );
+      const sections = stringifiedDocument
+        .split("\n\n")
+        .reduce((result, section) => {
+          const sectionId = nanoid();
+          return {
+            ...result,
+            [sectionId]: {
+              id: sectionId,
+              title: "",
+              keywords: [],
+              keySentences: [],
+              content: section,
+            } satisfies TemplateSection,
+          };
+        }, {});
       const template = {
         id: nanoid(),
         name,

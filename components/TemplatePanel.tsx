@@ -25,13 +25,19 @@ const TemplatePanel = () => {
 type TemplateOutlineProps = {
   template: Template;
 };
+
 const TemplateOutline = memo(({ template }: TemplateOutlineProps) => {
   return (
     <div>
-      <div>{template.name}</div>
-      {template.sections.map((section, index) => (
-        <div key={index}>{section.title}</div>
-      ))}
+      <h4>{template.name}</h4>
+      <div className="flex flex-col gap-4">
+        {Object.values(template.sections).map((section, index) => (
+          <div key={index}>
+            <div className="font-semibold">Section {section.id}</div>
+            <div>{section.title}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 });
