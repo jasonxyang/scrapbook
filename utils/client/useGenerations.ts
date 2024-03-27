@@ -2,15 +2,12 @@ import {
   GenerateSentenceResponseData,
   GenerateSentenceRequestBody,
 } from "@/pages/api/open_ai/generate_sentence";
-import { documentSelector } from "@/recoil/document/selectors";
 import { selectedTemplateGenerationsSelector } from "@/recoil/generation/selectors";
-import { selectedTemplateSelector } from "@/recoil/template/selectors";
 import { Generation, DocumentParams, SectionParams, Template } from "@/types";
 import { isEqual } from "lodash";
 import { nanoid } from "nanoid";
 import { useMemo, useCallback } from "react";
-import { useRecoilValue, useRecoilState } from "recoil";
-import { documentParamsChecker } from "./checkers";
+import { useRecoilState } from "recoil";
 import { showAlert } from "./errorHandling";
 import { post } from "./fetch";
 import useGenerationProgress from "./useGenerationProgress";
@@ -95,24 +92,14 @@ const generateSentence = async ({
 };
 
 const useGenerations = () => {
-  const selectedTemplate = useRecoilValue(selectedTemplateSelector);
   const [selectedTemplateGenerations, setSelectedTemplateGenerations] =
     useRecoilState(selectedTemplateGenerationsSelector({ type: "sentence" }));
-  const { tone, documentType, style, title } = useRecoilValue(documentSelector);
 
   const {
     getGenerationProgress,
     setGenerationProgress,
     deleteGenerationProgress,
   } = useGenerationProgress();
-
-  const documentParams = useMemo(() => {
-    return { tone, documentType, style, title };
-  }, [documentType, style, title, tone]);
-
-  const isMissingDocumentParams =
-    documentParamsChecker()(documentParams).type === "failure";
-  const isMissingTemplateParams = !selectedTemplate?.sections;
 
   const setGeneration = useCallback(
     ({
@@ -136,18 +123,19 @@ const useGenerations = () => {
   );
 
   const generateSentenceIfNeeded = useCallback(
-    async ({
-      template,
-      sectionId,
+    ({
       generationId,
       prevGeneration,
+      sectionParams,
+      documentParams,
+      isRegeneration,
     }: {
-      template: Template;
-      sectionId: string;
+      sectionParams: SectionParams;
+      documentParams: DocumentParams;
       generationId: string;
       prevGeneration?: Generation;
+      isRegeneration: boolean;
     }) => {
-      if (isMissingTemplateParams || isMissingDocumentParams) return;
       const generationProgress = getGenerationProgress({ generationId });
 
       if (generationProgress?.isGenerating) {
@@ -155,60 +143,74 @@ const useGenerations = () => {
         return;
       }
 
-      console.log(`Generating ${generationId}`);
-
-      const { content, ...sectionParams } = template.sections[sectionId];
-
-      const generation = await generateSentence({
+      setGenerationProgress({
         generationId,
-        prevGeneration,
-        documentParams: documentParams as DocumentParams,
-        sectionParams,
+        isGenerating: true,
       });
 
-      if (generation && generation.content !== prevGeneration?.content)
-        setGeneration({ sectionId, generationId: generation.id, generation });
-      console.log(`Generation for ${generationId} is complete.`);
-      deleteGenerationProgress({ generationId });
+      console.log(`Generating ${generationId}`);
+
+      generateSentence({
+        generationId,
+        prevGeneration,
+        documentParams,
+        sectionParams,
+        isRegeneration,
+      }).then((generation) => {
+        if (generation && generation.content !== prevGeneration?.content)
+          setGeneration({
+            sectionId: sectionParams.id,
+            generationId: generation.id,
+            generation,
+          });
+        console.log(`Generation for ${generationId} is complete.`);
+        deleteGenerationProgress({ generationId });
+      });
     },
     [
       deleteGenerationProgress,
-      documentParams,
       getGenerationProgress,
-      isMissingDocumentParams,
-      isMissingTemplateParams,
       setGeneration,
+      setGenerationProgress,
     ]
   );
 
-  const regenerateSentencesIfNeeded = useCallback(() => {
-    if (!selectedTemplate) return;
-    Object.values(selectedTemplate.sections).map(async (section) => {
-      const prevSectionGenerations = selectedTemplateGenerations?.[section.id];
-      if (prevSectionGenerations) {
-        Object.values(prevSectionGenerations).map((generation) => {
-          setGenerationProgress({
-            generationId: generation.id,
-            isGenerating: true,
+  const regenerateSentencesIfNeeded = useCallback(
+    ({
+      documentParams,
+      template,
+    }: {
+      documentParams: DocumentParams;
+      template: Template;
+    }) => {
+      Object.values(template.sections).map(async (section) => {
+        const { content, ...sectionParams } = section;
+        const prevSectionGenerations =
+          selectedTemplateGenerations?.[section.id];
+        if (prevSectionGenerations) {
+          Object.values(prevSectionGenerations).map((generation) => {
+            generateSentenceIfNeeded({
+              generationId: generation.id,
+              prevGeneration: generation,
+              sectionParams,
+              documentParams,
+              isRegeneration: true,
+            });
           });
-          generateSentenceIfNeeded({
-            template: selectedTemplate,
-            generationId: generation.id,
-            prevGeneration: generation,
-            sectionId: section.id,
-          });
-        });
-      }
-    });
-  }, [
-    generateSentenceIfNeeded,
-    selectedTemplate,
-    selectedTemplateGenerations,
-    setGenerationProgress,
-  ]);
+        }
+      });
+    },
+    [generateSentenceIfNeeded, selectedTemplateGenerations]
+  );
 
   const generateSentencesIfNeeded = useCallback(
-    ({ template }: { template: Template }) => {
+    ({
+      template,
+      documentParams,
+    }: {
+      template: Template;
+      documentParams: DocumentParams;
+    }) => {
       Object.values(template.sections).map((section) => {
         const prevSectionGenerations =
           selectedTemplateGenerations?.[section.id];
@@ -218,40 +220,30 @@ const useGenerations = () => {
             SENTENCE_GENERATIONS_PER_SECTION
         )
           return;
+        const { content, ...sectionParams } = section;
         Array.from({ length: SENTENCE_GENERATIONS_PER_SECTION }).map(() => {
           const generationId = nanoid();
-          setGenerationProgress({
-            generationId,
-            isGenerating: true,
-          });
           generateSentenceIfNeeded({
-            template,
             generationId: generationId,
-            sectionId: section.id,
+            sectionParams,
+            documentParams,
+            isRegeneration: false,
           });
         });
       });
     },
-    [
-      generateSentenceIfNeeded,
-      selectedTemplateGenerations,
-      setGenerationProgress,
-    ]
+    [generateSentenceIfNeeded, selectedTemplateGenerations]
   );
 
   return useMemo(
     () => ({
       generations: selectedTemplateGenerations,
-      isMissingDocumentParams,
-      isMissingTemplateParams,
       regenerateSentencesIfNeeded,
       generateSentencesIfNeeded,
       generateSentenceIfNeeded,
     }),
     [
       selectedTemplateGenerations,
-      isMissingDocumentParams,
-      isMissingTemplateParams,
       regenerateSentencesIfNeeded,
       generateSentencesIfNeeded,
       generateSentenceIfNeeded,

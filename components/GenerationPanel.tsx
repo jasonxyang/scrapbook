@@ -1,7 +1,7 @@
 import { Generation } from "@/types";
 import useGenerationProgress from "@/utils/client/useGenerationProgress";
 import useGenerations from "@/utils/client/useGenerations";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { memo } from "react";
 
 const GenerationPanel = () => {
@@ -35,6 +35,7 @@ type SentenceGenerationProps = {
 };
 
 const SentenceGeneration = memo(({ generation }: SentenceGenerationProps) => {
+  const { generateSentenceIfNeeded } = useGenerations();
   const { getGenerationProgress } = useGenerationProgress();
   const generationProgress = getGenerationProgress({
     generationId: generation.id,
@@ -48,7 +49,18 @@ const SentenceGeneration = memo(({ generation }: SentenceGenerationProps) => {
         <>
           <div>{generation.content}</div>
           <div className="flex">
-            <button className="outline-black outline-1 outline w-fit h-fit px-2 py-1 rounded-sm">
+            <button
+              className="outline-black outline-1 outline w-fit h-fit px-2 py-1 rounded-sm"
+              onClick={() => {
+                generateSentenceIfNeeded({
+                  prevGeneration: generation,
+                  sectionParams: generation.sectionParams,
+                  generationId: generation.id,
+                  documentParams: generation.documentParams,
+                  isRegeneration: true,
+                });
+              }}
+            >
               Regenerate
             </button>
             <button className="outline-black outline-1 outline w-fit h-fit px-2 py-1 rounded-sm">

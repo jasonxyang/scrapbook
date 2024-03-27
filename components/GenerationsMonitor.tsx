@@ -1,4 +1,4 @@
-import { documentSelector } from "@/recoil/document/selectors";
+import { documentParamsSelector } from "@/recoil/document/selectors";
 import { selectedTemplateSelector } from "@/recoil/template/selectors";
 import useGenerations from "@/utils/client/useGenerations";
 import { memo, useEffect } from "react";
@@ -8,17 +8,27 @@ const GenerationsMonitor = () => {
   const { generateSentencesIfNeeded, regenerateSentencesIfNeeded } =
     useGenerations();
   const selectedTemplate = useRecoilValue(selectedTemplateSelector);
-  const document = useRecoilValue(documentSelector);
-  useEffect(() => {
-    if (!selectedTemplate) return;
-    generateSentencesIfNeeded({ template: selectedTemplate });
+  const documentParams = useRecoilValue(documentParamsSelector);
+  useEffect(
+    function generateSentencesIfNeededOnSelectedTemplatChange() {
+      if (!selectedTemplate || !documentParams) return;
+      generateSentencesIfNeeded({ template: selectedTemplate, documentParams });
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTemplate]);
+    [selectedTemplate, documentParams]
+  );
 
-  useEffect(() => {
-    regenerateSentencesIfNeeded();
+  useEffect(
+    function regenerateSentencesIfNeededOnDocumentChange() {
+      if (!selectedTemplate || !documentParams) return;
+      regenerateSentencesIfNeeded({
+        documentParams,
+        template: selectedTemplate,
+      });
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [document, selectedTemplate]);
+    [selectedTemplate, documentParams]
+  );
 
   return null;
 };
