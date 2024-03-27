@@ -21,8 +21,6 @@ const GenerationPanel = () => {
     ));
   }, [generations]);
 
-  const renderEmpty = useCallback(() => {}, []);
-
   return (
     <div className="p-2">
       <div className="flex flex-col gap-4">{renderSentenceGenerations()}</div>
