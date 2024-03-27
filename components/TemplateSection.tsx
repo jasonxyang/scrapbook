@@ -14,7 +14,7 @@ import { Template, TemplateSection } from "@/types";
 import { nanoid } from "nanoid";
 import TemplateCard from "./TemplateCard";
 
-const HTMLTemplateSection = () => {
+const TemplateSection = () => {
   const templates = useRecoilValue(templatesAtom);
 
   const hasTemplates = useMemo(() => {
@@ -189,4 +189,4 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
 
 CreateTemplateDialog.displayName = "DocumentFileUpoadDialog";
 
-export default memo(HTMLTemplateSection);
+export default memo(TemplateSection);

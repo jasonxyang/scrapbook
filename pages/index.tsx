@@ -3,18 +3,20 @@ import DocumentTitleInput from "@/components/DocumentTitleInput";
 import StyleCheckboxGroup from "@/components/StyleCheckboxGroup";
 import ToneCheckboxGroup from "@/components/ToneCheckboxGroup";
 import TemplatePanel from "@/components/TemplatePanel";
-// import ScrapbookPanel from "@/components/ScrapbookPanel";
+import GenerationPanel from "@/components/GenerationPanel";
 import RichTextEditor from "@/components/RichTextEditor";
 import { spaceGrotesk, spaceMono } from "@/fonts";
 import classNames from "classnames";
-import HTMLTemplateSection from "@/components/TemplateSection";
+import TemplateSection from "@/components/TemplateSection";
 import React, { useState } from "react";
+import GenerationsMonitor from "@/components/GenerationsMonitor";
 
 export default function Home() {
   const [editorText, setEditorText] = useState("Initial text");
 
   return (
     <>
+      <GenerationsMonitor />
       <main className={classNames(spaceGrotesk.variable, spaceMono.variable)}>
         <div className="px-5 py-5">
           <DocumentTitleInput />
@@ -28,7 +30,7 @@ export default function Home() {
             <ToneCheckboxGroup />
           </div>
           <div className="block py-2">
-            <HTMLTemplateSection />
+            <TemplateSection />
           </div>
         </div>
         <hr></hr>
@@ -40,7 +42,7 @@ export default function Home() {
             <RichTextEditor text={editorText} onTextChange={setEditorText} />
           </div>
           <div className="w-[20%]">
-            {/* <ScrapbookPanel /> */}
+            <GenerationPanel />
           </div>
         </div>
       </main>
