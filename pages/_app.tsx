@@ -5,13 +5,15 @@ import { RecoilSync } from "recoil-sync";
 import "../recoil";
 import { getLocalStorageKey } from "@/utils/client/localStorage";
 import { useEffect, useState } from "react";
+import AppLoading from "@/components/AppLoading";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [isSSR, setIsSSR] = useState(true);
   useEffect(() => {
     setIsSSR(false);
   }, []);
-  if (isSSR) return <div>Loading...</div>;
+  if (isSSR) return <AppLoading />;
+
   return (
     <RecoilRoot>
       <RecoilSync
