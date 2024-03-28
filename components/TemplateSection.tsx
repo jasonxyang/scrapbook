@@ -13,6 +13,8 @@ import { FileInput, TextInput } from "./generic/Input";
 import { Template, TemplateSection } from "@/types";
 import { nanoid } from "nanoid";
 import TemplateCard from "./TemplateCard";
+import Button from "./generic/Button";
+import { PlusIcon } from "@radix-ui/react-icons";
 
 const TemplateSection = () => {
   const templates = useRecoilValue(templatesAtom);
@@ -40,9 +42,7 @@ const TemplateSection = () => {
   return (
     <section className="flex items-center gap-4 overflow-x-scroll p-2">
       <CreateTemplateDialog>
-        <button className="outline-black outline-1 outline w-fit h-fit px-2 py-1 rounded-sm">
-          Create template
-        </button>
+        <Button icon={<PlusIcon />}>Create template</Button>
       </CreateTemplateDialog>
       {hasTemplates ? renderTemplates() : renderEmptyState()}
     </section>
