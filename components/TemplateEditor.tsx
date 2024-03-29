@@ -1,13 +1,9 @@
-import { templateSelector } from "@/recoil/template/selectors";
 import { memo, useState, useCallback, useMemo, PropsWithChildren } from "react";
-import { useRecoilState } from "recoil";
-import { TextInput } from "./generic/Input";
-import { TemplateSection } from "@/types";
-import classNames from "classnames";
+import { ScrapbookTemplate } from "@/types";
 import ContextMenu, { ContextMenuItemProps } from "./generic/ContextMenu";
-import { Cross2Icon } from "@radix-ui/react-icons";
+import useTemplate from "@/utils/client/useTemplate";
 
-type TemplateSectionContentNodeType = "title" | "keyword" | "key sentence";
+type TemplateNodeType = "inspiration";
 
 const findTextInSection = (query: string, content: string) => {
   const index = content.search(query);
@@ -18,17 +14,17 @@ const findTextInSection = (query: string, content: string) => {
 const splitContentString = (
   str: string,
   indices: {
-    type: TemplateSectionContentNodeType;
+    type: TemplateNodeType;
     position: number;
     index: number;
   }[]
 ) => {
   const result: {
     textContent: string;
-    types: TemplateSectionContentNodeType[];
+    types: TemplateNodeType[];
   }[] = [];
   let start = 0;
-  let currentTypes: TemplateSectionContentNodeType[] = [];
+  let currentTypes: TemplateNodeType[] = [];
 
   indices.forEach(({ index, position, type }) => {
     if (index > start && index <= str.length) {
@@ -47,34 +43,24 @@ const splitContentString = (
   return result;
 };
 
-const buildClassFromTypes = (types: TemplateSectionContentNodeType[]) => {
+const inpsirationDomClassname = {
+  base: "bg-yellow-200",
+};
+const buildClassFromTypes = (types: TemplateNodeType[]) => {
   let className = "";
-  if (types.includes("title")) className = className.concat("bg-red-200");
-  if (types.includes("keyword")) className = className.concat(" bg-green-200");
-  if (types.includes("key sentence"))
-    className = className.concat(" bg-yellow-200");
+  if (types.includes("inspiration"))
+    className = className.concat(inpsirationDomClassname.base);
   return className;
 };
 
-const buildDomNodesFromSection = (section: TemplateSection) => {
-  const title = section.title;
-  const titleIndices = findTextInSection(title, section.content);
-  const titleData =
-    titleIndices?.map((index, position) => {
-      return {
-        type: "title" as TemplateSectionContentNodeType,
-        position,
-        index,
-      };
-    }) ?? [];
-
-  const keywords = section.keywords;
-  const keywordData = keywords.flatMap((keyword) => {
-    const keywordIndices = findTextInSection(keyword, section.content);
+const buildDomNodesFromTemplate = (template: ScrapbookTemplate) => {
+  const inspiration = template.inspiration;
+  const inspirationData = inspiration.flatMap(({ content }) => {
+    const inspirationIndices = findTextInSection(content, template.content);
     return (
-      keywordIndices?.map((index, position) => {
+      inspirationIndices?.map((index, position) => {
         return {
-          type: "keyword" as TemplateSectionContentNodeType,
+          type: "inspiration" as TemplateNodeType,
           position,
           index,
         };
@@ -82,15 +68,15 @@ const buildDomNodesFromSection = (section: TemplateSection) => {
     );
   });
 
-  const data = [...titleData, ...keywordData].sort(
+  const data = [...inspirationData].sort(
     (a, b) => (a?.index ?? 0) - (b?.index ?? 0)
   ) satisfies {
-    type: TemplateSectionContentNodeType;
+    type: TemplateNodeType;
     position: number;
     index: number;
   }[];
 
-  const nodesData = splitContentString(section.content, data);
+  const nodesData = splitContentString(template.content, data);
 
   return nodesData.map(({ textContent, types }, index) => {
     return (
@@ -106,13 +92,7 @@ type TemplateEditorProps = {
   onBack?: () => void;
 };
 const TemplateEditor = ({ templateId }: TemplateEditorProps) => {
-  const [template, setTemplate] = useRecoilState(
-    templateSelector({ templateId })
-  );
-
-  const [selectedSectionId, setSelectedSectionId] = useState<
-    string | null | undefined
-  >();
+  const { template } = useTemplate({ templateId });
 
   const [selection, setSelection] = useState<string>("");
 
@@ -129,43 +109,19 @@ const TemplateEditor = ({ templateId }: TemplateEditorProps) => {
     }
   }, [selection]);
 
+  if (!template) return null;
+
   return (
     <div className="flex h-[60vh]">
-      <div className="flex flex-col gap-4 h-full overflow-y-scroll p-1">
-        {Object.values(template?.sections ?? {}).map((section, index) => {
-          return (
-            <TemplateSectionInputGroup
-              key={index}
-              templateId={templateId}
-              sectionId={section.id}
-              setSelectedSectionId={setSelectedSectionId}
-              isSelected={selectedSectionId === section.id}
-            />
-          );
-        })}
-      </div>
-
       <div className="p-4 whitespace-pre-wrap w-96 h-[60vh] overflow-y-scroll flex flex-col gap-4">
-        {Object.values(template?.sections ?? {}).map((section, index) => {
-          return (
-            <TemplateEditorContextMenu
-              key={index}
-              sectionId={section.id}
-              templateId={templateId}
-              selection={selection}
-            >
-              <div
-                className={classNames({
-                  ["bg-gray-100"]: selectedSectionId === section.id,
-                })}
-                onMouseDown={() => setSelectedSectionId(section.id)}
-                onMouseUp={handleUpdateSelection}
-              >
-                {buildDomNodesFromSection(section)}
-              </div>
-            </TemplateEditorContextMenu>
-          );
-        })}
+        <TemplateEditorContextMenu
+          templateId={templateId}
+          selection={selection}
+        >
+          <div onMouseUp={handleUpdateSelection}>
+            {buildDomNodesFromTemplate(template)}
+          </div>
+        </TemplateEditorContextMenu>
       </div>
     </div>
   );
@@ -173,217 +129,29 @@ const TemplateEditor = ({ templateId }: TemplateEditorProps) => {
 
 type TemplateEditorContextMenuProps = {
   templateId: string;
-  sectionId: string;
   selection: string;
 };
 const TemplateEditorContextMenu = ({
   templateId,
-  sectionId,
   selection,
   children,
 }: PropsWithChildren<TemplateEditorContextMenuProps>) => {
-  const { section, setTitle, setKeywords, setKeySentences } =
-    useTemplateSection({
-      templateId,
-      sectionId,
-    });
+  const { addTemplateInspiration } = useTemplate({
+    templateId,
+  });
 
   const contextMenuItems = useMemo((): ContextMenuItemProps[] => {
     return [
       {
-        label: "Set as title",
+        label: "Add inspiration",
         onClick: () => {
           if (!selection) return;
-          setTitle(selection);
-        },
-      },
-      {
-        label: "Add keyword",
-        onClick: () => {
-          if (!selection) return;
-          const keywords = [...(section?.keywords ?? []), selection];
-          setKeywords(keywords);
-        },
-      },
-      {
-        label: "Add key sentence",
-        onClick: () => {
-          if (!selection) return;
-          const sentences = [...(section?.keySentences ?? []), selection];
-          setKeySentences(sentences);
+          addTemplateInspiration({ content: selection });
         },
       },
     ];
-  }, [
-    section?.keySentences,
-    section?.keywords,
-    selection,
-    setKeySentences,
-    setKeywords,
-    setTitle,
-  ]);
+  }, [addTemplateInspiration, selection]);
   return <ContextMenu items={contextMenuItems}>{children}</ContextMenu>;
-};
-
-type TemplateSectionInputGroupProps = {
-  templateId: string;
-  sectionId: string;
-  setSelectedSectionId: (id: string) => void;
-  isSelected?: boolean;
-};
-const TemplateSectionInputGroup = memo(
-  ({
-    templateId,
-    sectionId,
-    setSelectedSectionId,
-    isSelected,
-  }: TemplateSectionInputGroupProps) => {
-    const { section, setTitle, setKeywords } = useTemplateSection({
-      templateId,
-      sectionId,
-    });
-
-    const handleOnFocus = useCallback(() => {
-      setSelectedSectionId(sectionId);
-    }, [sectionId, setSelectedSectionId]);
-
-    const renderTitleInput = useCallback(() => {
-      return (
-        <TextInput
-          value={section?.title ?? ""}
-          onValueChange={setTitle}
-          label="Title"
-          onFocus={handleOnFocus}
-        />
-      );
-    }, [handleOnFocus, section?.title, setTitle]);
-
-    const deleteKeywordCallbacks = useMemo(() => {
-      return section?.keywords.map((_, index) => {
-        return () => {
-          setKeywords(section.keywords.filter((_, i) => i !== index));
-        };
-      });
-    }, [section?.keywords, setKeywords]);
-
-    const renderKeywords = useCallback(() => {
-      return (
-        <div>
-          <div className="font-semibold">Keywords</div>
-          <div className="flex">
-            {section?.keywords.map((keyword, index) => (
-              <span key={index}>
-                {keyword}{" "}
-                <button onClick={deleteKeywordCallbacks?.[index]}>
-                  <Cross2Icon />
-                </button>
-              </span>
-            ))}
-          </div>
-        </div>
-      );
-    }, [deleteKeywordCallbacks, section?.keywords]);
-
-    const deleteKeySentenceCallbacks = useMemo(() => {
-      return section?.keywords.map((_, index) => {
-        return () => {
-          setKeywords(section?.keywords.filter((_, i) => i !== index));
-        };
-      });
-    }, [section?.keywords, setKeywords]);
-
-    const renderKeySentences = useCallback(() => {
-      return (
-        <div>
-          <div className="font-semibold">Key Sentences</div>
-          <div className="flex">
-            {section?.keySentences.map((keySentence, index) => (
-              <div key={index}>
-                {keySentence}{" "}
-                <button onClick={deleteKeySentenceCallbacks?.[index]}>
-                  <Cross2Icon />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }, [deleteKeySentenceCallbacks, section?.keySentences]);
-
-    return (
-      <div
-        className={classNames(
-          "outline outline-1 rounded-md flex flex-col gap-2 p-2 w-[300px]",
-          {
-            ["outline-black"]: isSelected,
-            ["outline-gray-200"]: !isSelected,
-          }
-        )}
-      >
-        <div className="font-semibold">Section {sectionId}</div>
-        {renderTitleInput()}
-        {renderKeywords()}
-        {renderKeySentences()}
-      </div>
-    );
-  }
-);
-TemplateSectionInputGroup.displayName = "TemplateSectionInputGroup";
-
-type UseTemplateSectionParams = {
-  templateId: string;
-  sectionId: string;
-};
-const useTemplateSection = ({
-  templateId,
-  sectionId,
-}: UseTemplateSectionParams) => {
-  const [template, setTemplate] = useRecoilState(
-    templateSelector({ templateId })
-  );
-  const { section, setSection } = useMemo(() => {
-    return {
-      section: template?.sections[sectionId],
-      setSection: (sectionUpdates: Partial<TemplateSection>) => {
-        if (!template) return;
-        setTemplate({
-          ...template,
-          sections: {
-            ...template.sections,
-            [sectionId]: {
-              ...template.sections[sectionId],
-              ...sectionUpdates,
-            },
-          },
-        });
-      },
-    };
-  }, [sectionId, setTemplate, template]);
-
-  const { setTitle, setKeywords, setKeySentences } = useMemo(() => {
-    return {
-      setTitle: (title: string) => {
-        setSection({ title });
-      },
-      setKeywords: (keywords: string[]) => {
-        setSection({ keywords });
-      },
-      setKeySentences: (keySentences: string[]) => {
-        setSection({ keySentences });
-      },
-    };
-  }, [setSection]);
-
-  return useMemo(
-    () => ({
-      section,
-      setSection,
-      setTitle,
-      setKeywords,
-      setKeySentences,
-    }),
-    [section, setKeySentences, setKeywords, setSection, setTitle]
-  );
 };
 
 export default memo(TemplateEditor);

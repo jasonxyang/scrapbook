@@ -1,5 +1,5 @@
-import { documentParamsSelector } from "@/recoil/document/selectors";
-import { selectedTemplateSelector } from "@/recoil/template/selectors";
+import { documentParamsSelector } from "@/recoil/documents/selectors";
+import { selectedTemplateSelector } from "@/recoil/templates/selectors";
 import useGenerations from "@/utils/client/useGenerations";
 import { memo, useEffect } from "react";
 import { useRecoilValue } from "recoil";

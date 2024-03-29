@@ -1,24 +1,26 @@
-import styleAtom from "@/recoil/document/style";
-import { useRecoilState } from "recoil";
-import { STYLES, Style } from "@/types";
+import { SCRAPBOOK_DOCUMENT_STYLES, ScrapbookDocumentStyle } from "@/types";
 import Checkbox from "./generic/Checkbox";
 import { memo, useCallback } from "react";
+import useDocument from "@/utils/client/useDocument";
 
-const StyleCheckboxGroup = () => {
-  const [selectedStyle, setSelectedStyle] = useRecoilState(styleAtom);
+type StyleCheckboxGroupProps = {
+  documentId: string;
+};
+const StyleCheckboxGroup = ({ documentId }: StyleCheckboxGroupProps) => {
+  const { documentStyle, setDocumentStyle } = useDocument({ documentId });
 
   const handleCheckboxChange = useCallback(
-    (style: Style) => {
-      setSelectedStyle(style);
+    (style: ScrapbookDocumentStyle) => {
+      setDocumentStyle(style);
     },
-    [setSelectedStyle]
+    [setDocumentStyle]
   );
 
-  return STYLES.map((style) => {
+  return SCRAPBOOK_DOCUMENT_STYLES.map((style) => {
     return (
       <Checkbox
         key={style}
-        checked={style === selectedStyle}
+        checked={style === documentStyle}
         onCheckedChange={() => handleCheckboxChange(style)}
         label={style}
       />

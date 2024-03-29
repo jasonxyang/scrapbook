@@ -1,11 +1,11 @@
-import templatesAtom from "@/recoil/template/templates";
+import templatesAtom from "@/recoil/templates/templates";
 import { PropsWithChildren, memo, useCallback } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import Dialog from "./generic/Dialog";
 import TemplateEditor from "./TemplateEditor";
-import selectedTemplateAtom from "@/recoil/template/selectedTemplate";
+import selectedTemplateAtom from "@/recoil/templates/selectedTemplate";
 import classNames from "classnames";
-import { selectedTemplateGenerationsSelector } from "@/recoil/generation/selectors";
+import { selectedTemplateGenerationsSelector } from "@/recoil/generations/selectors";
 
 type TemplateCardProps = {
   id: string;

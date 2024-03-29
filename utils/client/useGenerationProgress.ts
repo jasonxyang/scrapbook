@@ -1,5 +1,5 @@
-import generationProgressAtom from "@/recoil/generation/generationProgress";
-import { GenerationProgress } from "@/types";
+import generationProgressAtom from "@/recoil/generations/generationProgress";
+import { ScrapbookGenerationProgress } from "@/types";
 import { useMemo } from "react";
 import { useRecoilState } from "recoil";
 
@@ -17,7 +17,7 @@ const useGenerationProgress = () => {
       setGenerationProgress: ({
         generationId,
         isGenerating,
-      }: GenerationProgress) => {
+      }: ScrapbookGenerationProgress) => {
         setGenerationProgressByGenerationId((prevProgress) => ({
           ...prevProgress,
           [generationId]: { generationId, isGenerating },

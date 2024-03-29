@@ -1,8 +1,8 @@
 import React, { useCallback } from "react";
 import { memo } from "react";
-import { selectedTemplateSelector } from "@/recoil/template/selectors";
+import { selectedTemplateSelector } from "@/recoil/templates/selectors";
 import { useRecoilValue } from "recoil";
-import { Template } from "@/types";
+import { ScrapbookTemplate } from "@/types";
 
 const TemplatePanel = () => {
   const selectedTemplate = useRecoilValue(selectedTemplateSelector);
@@ -23,7 +23,7 @@ const TemplatePanel = () => {
 };
 
 type TemplateOutlineProps = {
-  template: Template;
+  template: ScrapbookTemplate;
 };
 
 const TemplateOutline = memo(({ template }: TemplateOutlineProps) => {

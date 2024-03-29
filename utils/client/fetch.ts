@@ -1,4 +1,4 @@
-import { ApiRoute } from "@/types";
+import { ScrapbookApiRoute } from "@/types";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -8,7 +8,7 @@ interface FetchOptions extends RequestInit {
 }
 
 async function fetchData<T>(
-  url: ApiRoute,
+  url: ScrapbookApiRoute,
   method: HttpMethod = "GET",
   options?: FetchOptions
 ): Promise<T> {
@@ -38,14 +38,14 @@ async function fetchData<T>(
 }
 
 export async function get<T>(
-  url: ApiRoute,
+  url: ScrapbookApiRoute,
   options?: FetchOptions
 ): Promise<T> {
   return fetchData<T>(url, "GET", options);
 }
 
 export async function post<T>(
-  url: ApiRoute,
+  url: ScrapbookApiRoute,
   data?: any,
   options?: FetchOptions
 ): Promise<T> {
@@ -56,7 +56,7 @@ export async function post<T>(
 }
 
 export async function put<T>(
-  url: ApiRoute,
+  url: ScrapbookApiRoute,
   data?: any,
   options?: FetchOptions
 ): Promise<T> {
@@ -67,7 +67,7 @@ export async function put<T>(
 }
 
 export async function del<T>(
-  url: ApiRoute,
+  url: ScrapbookApiRoute,
   data?: any,
   options?: FetchOptions
 ): Promise<T> {

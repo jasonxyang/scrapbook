@@ -1,25 +1,26 @@
-import { useRecoilState } from "recoil";
-import { TONES, Tone } from "@/types";
+import { SCRAPBOOK_DOCUMENT_TONES, ScrapbookDocumentTone } from "@/types";
 import Checkbox from "./generic/Checkbox";
 import { memo, useCallback } from "react";
-import toneAtom from "@/recoil/document/tone";
+import useDocument from "@/utils/client/useDocument";
 
-const ToneCheckboxGroup = () => {
-  const [selectedTone, setSelectedTone] = useRecoilState(toneAtom);
+type ToneCheckboxGroupProps = {
+  documentId: string;
+};
+const ToneCheckboxGroup = ({ documentId }: ToneCheckboxGroupProps) => {
+  const { documentTone, setDocumentTone } = useDocument({ documentId });
 
   const handleCheckboxChange = useCallback(
-    (tone: Tone) => {
-      if (tone === selectedTone) setSelectedTone(undefined);
-      else setSelectedTone(tone);
+    (tone: ScrapbookDocumentTone) => {
+      setDocumentTone(tone);
     },
-    [selectedTone, setSelectedTone]
+    [setDocumentTone]
   );
 
-  return TONES.map((tone) => {
+  return SCRAPBOOK_DOCUMENT_TONES.map((tone) => {
     return (
       <Checkbox
         key={tone}
-        checked={tone === selectedTone}
+        checked={tone === documentTone}
         onCheckedChange={() => handleCheckboxChange(tone)}
         label={tone}
       />

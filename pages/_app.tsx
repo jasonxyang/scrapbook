@@ -2,10 +2,11 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { RecoilRoot } from "recoil";
 import { RecoilSync } from "recoil-sync";
-import "../recoil";
-import { getLocalStorageKey } from "@/utils/client/localStorage";
+import "../recoil.config";
+import { getRecoilAtomLocalStorageKey } from "@/utils/client/localStorage";
 import { useEffect, useState } from "react";
 import AppLoading from "@/components/AppLoading";
+import { ScrapbookRecoilKey } from "@/types";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [isSSR, setIsSSR] = useState(true);
@@ -18,13 +19,15 @@ export default function App({ Component, pageProps }: AppProps) {
     <RecoilRoot>
       <RecoilSync
         read={(key) => {
-          const value = localStorage.getItem(getLocalStorageKey(key));
+          const value = localStorage.getItem(
+            getRecoilAtomLocalStorageKey({ key: key as ScrapbookRecoilKey })
+          );
           if (value) return JSON.parse(value);
         }}
         write={({ diff }) => {
           for (const [key, value] of diff) {
             localStorage.setItem(
-              getLocalStorageKey(key),
+              getRecoilAtomLocalStorageKey({ key: key as ScrapbookRecoilKey }),
               JSON.stringify(value)
             );
           }

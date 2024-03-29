@@ -1,9 +1,9 @@
 import {
-  DocumentType,
-  Generation,
-  Style,
-  TemplateSection,
-  Tone,
+  ScrapbookDocumentType,
+  ScrapbookGeneration,
+  ScrapbookDocumentStyle,
+  ScrapbookTemplateSection,
+  ScrapbookDocumentTone,
 } from "@/types";
 import { openai } from "@/utils/server/open_ai";
 import { nanoid } from "nanoid";
@@ -15,9 +15,9 @@ import {
 
 type GenerateSentenceSystemMessagesParams = {
   documentTitle: string;
-  documentType: DocumentType;
-  documentStyle: Style;
-  documentTone: Tone;
+  documentType: ScrapbookDocumentType;
+  documentStyle: ScrapbookDocumentStyle;
+  documentTone: ScrapbookDocumentTone;
 };
 const generateSentenceSystemMessages = ({
   documentTitle,
@@ -33,9 +33,9 @@ const generateSentenceSystemMessages = ({
   ];
 };
 type GenerateSentenceUserMessagesParams = {
-  sectionTitle: TemplateSection["title"];
-  sectionKeySentences: TemplateSection["keySentences"];
-  sectionKeywords: TemplateSection["keywords"];
+  sectionTitle: ScrapbookTemplateSection["title"];
+  sectionKeySentences: ScrapbookTemplateSection["keySentences"];
+  sectionKeywords: ScrapbookTemplateSection["keywords"];
 };
 const generateSentenceUserMessages = ({
   sectionTitle,
@@ -87,7 +87,7 @@ const generateSentence = async ({
 
 export type GenerateSentenceResponseData = {
   successs: boolean;
-  data: Generation | null;
+  data: ScrapbookGeneration | null;
 };
 export type GenerateSentenceRequestBody = GenerateSentenceSystemMessagesParams &
   GenerateSentenceUserMessagesParams & {
@@ -136,7 +136,7 @@ export default async function handler(
                 tone: documentTone,
                 title: documentTitle,
               },
-              sectionParams: {
+              templateParams: {
                 id: sectionId,
                 title: sectionTitle,
                 keywords: sectionKeywords,

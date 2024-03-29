@@ -1,15 +1,55 @@
-const API_ROUTES = {
+export const SCRAPBOOK_PAGE_ROUTES = {
+  "": [],
+  documents: ["create"],
+  templates: ["create"],
+} as const;
+
+export type ScrapbookPageRoute = {
+  [key in keyof typeof SCRAPBOOK_PAGE_ROUTES]:
+    | `/${key}/${(typeof SCRAPBOOK_PAGE_ROUTES)[key][number]}`
+    | `/${key}`;
+}[keyof typeof SCRAPBOOK_PAGE_ROUTES];
+
+const SCRAPBOOK_API_ROUTES = {
   open_ai: ["healthcheck", "generate_sentence"],
   healthcheck: [],
 } as const;
 
-export type ApiRoute = {
-  [key in keyof typeof API_ROUTES]:
-    | `/api/${key}/${(typeof API_ROUTES)[key][number]}`
+export type ScrapbookApiRoute = {
+  [key in keyof typeof SCRAPBOOK_API_ROUTES]:
+    | `/api/${key}/${(typeof SCRAPBOOK_API_ROUTES)[key][number]}`
     | `/api/${key}`;
-}[keyof typeof API_ROUTES];
+}[keyof typeof SCRAPBOOK_API_ROUTES];
 
-export const STYLES = [
+const SCRAPBOOK_RECOIL_KEYS = {
+  documents: [
+    "documentIds",
+    "documentsById",
+    "currentDocumentId",
+    "currentDocumentSelector",
+    "documentsSelector",
+  ],
+  templates: [
+    "templateIds",
+    "templatesById",
+    "currentTemplateId",
+    "templateSelector",
+    "currentTemplateSelector",
+    "templatesSelector",
+  ],
+  generations: [
+    "generationIds",
+    "generationsById",
+    "generationProgressesByGenerationId",
+    "currentGenerationsSelector",
+  ],
+} as const;
+
+export type ScrapbookRecoilKey = {
+  [key in keyof typeof SCRAPBOOK_RECOIL_KEYS]: `${(typeof SCRAPBOOK_RECOIL_KEYS)[key][number]}`;
+}[keyof typeof SCRAPBOOK_RECOIL_KEYS];
+
+export const SCRAPBOOK_DOCUMENT_STYLES = [
   "Narrative",
   "Descriptive",
   "Expository",
@@ -20,9 +60,9 @@ export const STYLES = [
   "Argumentative",
 ] as const;
 
-export type Style = (typeof STYLES)[number];
+export type ScrapbookDocumentStyle = (typeof SCRAPBOOK_DOCUMENT_STYLES)[number];
 
-export const TONES = [
+export const SCRAPBOOK_DOCUMENT_TONES = [
   "Formal",
   "Informal",
   "Playful",
@@ -33,9 +73,9 @@ export const TONES = [
   "Inquisitive",
 ] as const;
 
-export type Tone = (typeof TONES)[number];
+export type ScrapbookDocumentTone = (typeof SCRAPBOOK_DOCUMENT_TONES)[number];
 
-export const DOCUMENT_TYPES = [
+export const SCRAPBOOK_DOCUMENT_TYPES = [
   "Academic Essay",
   "Business Letter",
   "Creative Writing",
@@ -48,63 +88,62 @@ export const DOCUMENT_TYPES = [
   "Other",
 ] as const;
 
-export type DocumentType = (typeof DOCUMENT_TYPES)[number];
+export type ScrapbookDocumentType = (typeof SCRAPBOOK_DOCUMENT_TYPES)[number];
 
-export type Template = {
+export type ScrapbookTemplate = {
   id: string;
   name: string;
   description: string;
-  sections: { [sectionId: string]: TemplateSection };
+  inspiration: ScrapbookTemplateInspiration[];
+  content: string;
+  generationIds: string[];
+};
+
+export type ScrapbookTemplateInspiration = {
   content: string;
 };
 
-export type TemplateSection = SectionParams & {
-  content: string;
-};
+export const SCRAPBOOK_GENERATION_TYPES = ["sentence"] as const;
+export type ScrapbookGenerationType =
+  (typeof SCRAPBOOK_GENERATION_TYPES)[number];
 
-export const GENERATION_TYPES = ["sentence"] as const;
-export type GenerationType = (typeof GENERATION_TYPES)[number];
+export type ScrapbookGeneration = ScrapbookSentenceGeneration;
 
-export type Generation = SentenceGeneration;
-
-type BaseGeneration = {
+type ScrapbookBaseGeneration = {
   id: string;
 };
 
-type GenerationParams = {
-  sectionParams: Pick<
-    TemplateSection,
-    "title" | "keywords" | "keySentences" | "id"
-  >;
-  documentParams: {
-    documentType: DocumentType;
-    tone: Tone;
-    style: Style;
-    title: string;
-  };
+type ScrapbookGenerationParams = {
+  documentParams: ScrapbookDocumentParams;
 };
 
-export type SentenceGeneration = BaseGeneration &
-  GenerationParams & {
+export type ScrapbookSentenceGeneration = ScrapbookBaseGeneration &
+  ScrapbookGenerationParams & {
     type: "sentence";
     content: string;
   };
 
-export type DocumentParams = {
-  tone: Tone;
-  style: Style;
-  title: string;
-  documentType: DocumentType;
+export type ScrapbookDocument = ScrapbookDocumentParams & {
+  id: string;
+  content: string;
 };
 
-export type SectionParams = {
+export type ScrapbookDocumentParams = {
+  tone: ScrapbookDocumentTone;
+  style: ScrapbookDocumentStyle;
+  title: string;
+  type: ScrapbookDocumentType;
+  templateId: string;
+};
+
+export type ScrapbookTemplateParams = {
   id: string;
   title: string;
   keywords: string[];
   keySentences: string[];
 };
 
-export type GenerationProgress = {
+export type ScrapbookGenerationProgress = {
   generationId: string;
   isGenerating: boolean;
 };

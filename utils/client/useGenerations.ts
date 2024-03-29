@@ -2,8 +2,13 @@ import {
   GenerateSentenceResponseData,
   GenerateSentenceRequestBody,
 } from "@/pages/api/open_ai/generate_sentence";
-import { selectedTemplateGenerationsSelector } from "@/recoil/generation/selectors";
-import { Generation, DocumentParams, SectionParams, Template } from "@/types";
+import { selectedTemplateGenerationsSelector } from "@/recoil/generations/selectors";
+import {
+  ScrapbookGeneration,
+  ScrapbookDocumentParams,
+  ScrapbookTemplateParams,
+  ScrapbookTemplate,
+} from "@/types";
 import { isEqual } from "lodash";
 import { nanoid } from "nanoid";
 import { useMemo, useCallback } from "react";
@@ -19,9 +24,9 @@ const needsRegenerate = ({
   sectionParams,
   generation,
 }: {
-  generation: Generation;
-  documentParams: DocumentParams;
-  sectionParams: SectionParams;
+  generation: ScrapbookGeneration;
+  documentParams: ScrapbookDocumentParams;
+  sectionParams: ScrapbookTemplateParams;
 }) => {
   const {
     documentType,
@@ -33,10 +38,10 @@ const needsRegenerate = ({
     title: sectionTitle,
     keySentences,
     keywords,
-  } = generation.sectionParams;
+  } = generation.templateParams;
 
   return (
-    documentType !== documentParams.documentType ||
+    documentType !== documentParams.type ||
     tone !== documentParams.tone ||
     style !== documentParams.style ||
     documentTitle !== documentParams.title ||
@@ -54,16 +59,16 @@ const generateSentence = async ({
   isRegeneration,
 }: {
   generationId?: string;
-  prevGeneration?: Generation;
-  documentParams: DocumentParams;
-  sectionParams: SectionParams;
+  prevGeneration?: ScrapbookGeneration;
+  documentParams: ScrapbookDocumentParams;
+  sectionParams: ScrapbookTemplateParams;
   isRegeneration?: boolean;
 }) => {
   const shouldGenerate =
     !prevGeneration ||
     needsRegenerate({
       generation: prevGeneration,
-      documentParams: documentParams as DocumentParams,
+      documentParams: documentParams as ScrapbookDocumentParams,
       sectionParams,
     }) ||
     (prevGeneration && isRegeneration);
@@ -78,7 +83,7 @@ const generateSentence = async ({
         documentTitle: documentParams.title,
         documentStyle: documentParams.style,
         documentTone: documentParams.tone,
-        documentType: documentParams.documentType,
+        documentType: documentParams.type,
         sectionTitle: sectionParams.title,
         sectionKeywords: sectionParams.keywords,
         sectionKeySentences: sectionParams.keySentences,
@@ -109,7 +114,7 @@ const useGenerations = () => {
     }: {
       sectionId: string;
       generationId: string;
-      generation: Generation;
+      generation: ScrapbookGeneration;
     }) => {
       setSelectedTemplateGenerations((prevGenerations) => ({
         ...prevGenerations,
@@ -130,10 +135,10 @@ const useGenerations = () => {
       documentParams,
       isRegeneration,
     }: {
-      sectionParams: SectionParams;
-      documentParams: DocumentParams;
+      sectionParams: ScrapbookTemplateParams;
+      documentParams: ScrapbookDocumentParams;
       generationId: string;
-      prevGeneration?: Generation;
+      prevGeneration?: ScrapbookGeneration;
       isRegeneration: boolean;
     }) => {
       const generationProgress = getGenerationProgress({ generationId });
@@ -180,8 +185,8 @@ const useGenerations = () => {
       documentParams,
       template,
     }: {
-      documentParams: DocumentParams;
-      template: Template;
+      documentParams: ScrapbookDocumentParams;
+      template: ScrapbookTemplate;
     }) => {
       Object.values(template.sections).map(async (section) => {
         const { content, ...sectionParams } = section;
@@ -208,8 +213,8 @@ const useGenerations = () => {
       template,
       documentParams,
     }: {
-      template: Template;
-      documentParams: DocumentParams;
+      template: ScrapbookTemplate;
+      documentParams: ScrapbookDocumentParams;
     }) => {
       Object.values(template.sections).map((section) => {
         const prevSectionGenerations =

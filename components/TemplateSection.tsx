@@ -1,4 +1,3 @@
-import templatesAtom from "@/recoil/template/templates";
 import {
   ReactNode,
   SyntheticEvent,
@@ -7,17 +6,19 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import Dialog from "./generic/Dialog";
 import { FileInput, TextInput } from "./generic/Input";
-import { Template, TemplateSection } from "@/types";
+import { ScrapbookTemplate } from "@/types";
 import { nanoid } from "nanoid";
 import TemplateCard from "./TemplateCard";
 import Button from "./generic/Button";
 import { PlusIcon } from "@radix-ui/react-icons";
+import { templatesSelector } from "@/recoil/templates/selectors";
+import useTemplates from "@/utils/client/useTemplates";
 
 const TemplateSection = () => {
-  const templates = useRecoilValue(templatesAtom);
+  const templates = useRecoilValue(templatesSelector);
 
   const hasTemplates = useMemo(() => {
     if (!templates) return false;
@@ -52,7 +53,7 @@ const TemplateSection = () => {
 const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
   const [name, setName] = useState<string>("Untitled Template");
   const [description, setDescription] = useState<string>("");
-  const [templates, setTemplates] = useRecoilState(templatesAtom);
+  const { addTemplate } = useTemplates();
   const [stringifiedDocument, setStringifiedDocument] = useState<string>("");
 
   const clear = useCallback(() => {
@@ -63,28 +64,14 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
 
   const processStringifiedDocumentIntoTemplate = useCallback(
     (stringifiedDocument: string) => {
-      const sections = stringifiedDocument
-        .split("\n\n")
-        .reduce((result, section) => {
-          const sectionId = nanoid();
-          return {
-            ...result,
-            [sectionId]: {
-              id: sectionId,
-              title: "",
-              keywords: [],
-              keySentences: [],
-              content: section,
-            } satisfies TemplateSection,
-          };
-        }, {});
-      const template = {
+      const template: ScrapbookTemplate = {
         id: nanoid(),
         name,
         description,
-        sections,
+        inspiration: [],
         content: stringifiedDocument,
-      } satisfies Template;
+        generationIds: [],
+      };
 
       return template;
     },
@@ -102,18 +89,14 @@ const CreateTemplateDialog = memo(({ children }: { children: ReactNode }) => {
     if (stringifiedDocument) {
       const newTemplate =
         processStringifiedDocumentIntoTemplate(stringifiedDocument);
-      setTemplates({
-        ...templates,
-        [newTemplate.id]: newTemplate,
-      });
+      addTemplate(newTemplate);
       clear();
     }
   }, [
+    addTemplate,
     clear,
     processStringifiedDocumentIntoTemplate,
-    setTemplates,
     stringifiedDocument,
-    templates,
   ]);
 
   const onFileUpload = useCallback((file: File) => {
