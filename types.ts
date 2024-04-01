@@ -21,33 +21,27 @@ export type ScrapbookApiRoute = {
     | `/api/${key}`;
 }[keyof typeof SCRAPBOOK_API_ROUTES];
 
-const SCRAPBOOK_RECOIL_KEYS = {
-  documents: [
-    "documentIds",
-    "documentsById",
-    "currentDocumentId",
-    "currentDocumentSelector",
-    "documentsSelector",
-  ],
+const SCRAPBOOK_JOTAI_KEYS = {
+  documents: ["documentIds", "documentsById", "documentsSelector"],
   templates: [
     "templateIds",
     "templatesById",
-    "currentTemplateId",
     "templateSelector",
-    "currentTemplateSelector",
     "templatesSelector",
+    "deleteTemplateId",
+    "createTemplateId",
   ],
   generations: [
     "generationIds",
     "generationsById",
     "generationProgressesByGenerationId",
-    "currentGenerationsSelector",
   ],
+  inspirations: ["inspirationIds", "inspirationsById", "inspirationsSelector"],
 } as const;
 
-export type ScrapbookRecoilKey = {
-  [key in keyof typeof SCRAPBOOK_RECOIL_KEYS]: `${(typeof SCRAPBOOK_RECOIL_KEYS)[key][number]}`;
-}[keyof typeof SCRAPBOOK_RECOIL_KEYS];
+export type ScrapbookJotaiKey = {
+  [key in keyof typeof SCRAPBOOK_JOTAI_KEYS]: `${(typeof SCRAPBOOK_JOTAI_KEYS)[key][number]}`;
+}[keyof typeof SCRAPBOOK_JOTAI_KEYS];
 
 export const SCRAPBOOK_DOCUMENT_STYLES = [
   "Narrative",
@@ -94,12 +88,15 @@ export type ScrapbookTemplate = {
   id: string;
   name: string;
   description: string;
-  inspiration: ScrapbookTemplateInspiration[];
   content: string;
+  inspirationIds: string[];
   generationIds: string[];
 };
 
-export type ScrapbookTemplateInspiration = {
+export type ScrapbookInspiration = {
+  id: string;
+  templateId: string;
+  nodeKeys: string[];
   content: string;
 };
 

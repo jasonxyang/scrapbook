@@ -1,3 +1,4 @@
+import { inter } from "@/fonts";
 import { showAlert } from "@/utils/client/errorHandling";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import classNames from "classnames";
@@ -10,17 +11,23 @@ import {
   useRef,
   useEffect,
   useState,
+  TextareaHTMLAttributes,
 } from "react";
+import { buttonClassName } from "./Button";
+
+const textInputClassName = {
+  base: "block appearance-none border-b border-gray-200 py-2 px-2 leading-5 focus:outline-none text-base w-full text-ellipsis whitespace-nowrap overflow-hidden",
+  focus: "focus:border-violet-400",
+};
 
 type TextInputProps = {
   value: string;
   onValueChange: (value: string) => void;
-  label?: string;
   className?: string;
 } & InputHTMLAttributes<HTMLInputElement>;
 export const TextInput = memo(
   forwardRef<HTMLInputElement, TextInputProps>(
-    ({ value, onValueChange, label, className, ...inputProps }, ref) => {
+    ({ value, onValueChange, className, ...inputProps }, ref) => {
       const handleOnChange = useCallback(
         (e: ChangeEvent<HTMLInputElement>) => {
           onValueChange(e.currentTarget.value);
@@ -30,10 +37,11 @@ export const TextInput = memo(
 
       return (
         <>
-          {label && <div>{label}</div>}
           <input
             className={classNames(
-              "appearance-none border rounded pl-2 py-2 px-3 leading-tight focus:outline-none focus:shadow-outline bg-gray-100",
+              textInputClassName.base,
+              textInputClassName.focus,
+              inter.className,
               className
             )}
             value={value}
@@ -43,6 +51,57 @@ export const TextInput = memo(
             {...inputProps}
           />
         </>
+      );
+    }
+  )
+);
+
+const textAreaInputClassName = {
+  base: "block appearance-none border-b border-gray-200 py-2 px-2 leading-5 focus:outline-none resize-none overflow-hidden text-base w-full text-ellipsis",
+  focus: "focus:border-violet-400",
+};
+type TextAreaInputProps = {
+  value: string;
+  onValueChange: (value: string) => void;
+  className?: string;
+} & TextareaHTMLAttributes<HTMLTextAreaElement>;
+export const TextAreaInput = memo(
+  forwardRef<HTMLTextAreaElement, TextAreaInputProps>(
+    ({ value, onValueChange, className, ...inputProps }, ref) => {
+      const [internalRef, setInternalRef] =
+        useState<HTMLTextAreaElement | null>(null);
+
+      const handleSetTextAreaHeight = useCallback(() => {
+        if (!internalRef) return;
+        internalRef.style.height = "auto";
+        internalRef.style.height = `${internalRef.scrollHeight}px`;
+      }, [internalRef]);
+
+      const handleOnChange = useCallback(
+        (e: ChangeEvent<HTMLTextAreaElement>) => {
+          onValueChange(e.currentTarget.value);
+          handleSetTextAreaHeight();
+        },
+
+        [handleSetTextAreaHeight, onValueChange]
+      );
+
+      return (
+        <textarea
+          className={classNames(
+            textAreaInputClassName.base,
+            textAreaInputClassName.focus,
+            inter.className,
+            className
+          )}
+          rows={1}
+          value={value}
+          onChange={handleOnChange}
+          ref={(node) => {
+            setInternalRef(node);
+          }}
+          {...inputProps}
+        />
       );
     }
   )
@@ -96,7 +155,13 @@ export const FileInput = memo(
 
       return (
         <div className="flex">
-          <label className="cursor-pointer p-4 outline outline-black outline-1 rounded-md">
+          <label
+            className={classNames(
+              buttonClassName.base,
+              buttonClassName.hover,
+              "w-full !block text-center"
+            )}
+          >
             Upload a file
             <input
               onClick={handleClearInput}

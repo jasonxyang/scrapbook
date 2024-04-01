@@ -8,7 +8,7 @@ import {
   ScrapbookTemplate,
   ScrapbookDocumentTone,
   ScrapbookDocument,
-  ScrapbookTemplateInspiration,
+  ScrapbookInspiration,
 } from "@/types";
 import { array, custom, string } from "@recoiljs/refine";
 
@@ -33,13 +33,15 @@ export const scrapbookDocumentTypeChecker = () =>
       : null;
   }, "Value is not a valid document type");
 
-export const scrapbookTemplateInspirationChecker = () =>
+export const scrapbookInspirationChecker = () =>
   custom((value) => {
-    return string()((value as ScrapbookTemplateInspiration).content).type ===
-      "success"
-      ? (value as ScrapbookTemplateInspiration)
+    return string()((value as ScrapbookInspiration).content).type ===
+      "success" &&
+      string()((value as ScrapbookInspiration).id).type === "success" &&
+      string()((value as ScrapbookInspiration).templateId).type === "success"
+      ? (value as ScrapbookInspiration)
       : null;
-  }, "Value is not a valid template inspiration");
+  }, "Value is not a valid inspiration");
 
 export const scrapbookTemplateChecker = () =>
   custom((value) => {
@@ -47,9 +49,8 @@ export const scrapbookTemplateChecker = () =>
       string()((value as ScrapbookTemplate).name).type === "success" &&
       string()((value as ScrapbookTemplate).content).type === "success" &&
       string()((value as ScrapbookTemplate).description).type === "success" &&
-      array(scrapbookTemplateInspirationChecker())(
-        (value as ScrapbookTemplate).inspiration
-      ).type === "success" &&
+      array(string())((value as ScrapbookTemplate).inspirationIds).type ===
+        "success" &&
       array(string())((value as ScrapbookTemplate).generationIds).type ===
         "success"
       ? (value as ScrapbookTemplate)

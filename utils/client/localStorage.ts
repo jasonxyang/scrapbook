@@ -1,23 +1,23 @@
-import { ScrapbookRecoilKey } from "@/types";
+import { ScrapbookJotaiKey } from "@/types";
 
 export const LOCAL_STORAGE_KEY = "scrapbook";
 
-type GetRecoilAtomLocalStorageKeyParams = {
-  key: ScrapbookRecoilKey;
+type GetJotaiAtomLocalStorageKeyParams = {
+  key: ScrapbookJotaiKey;
 };
-export const getRecoilAtomLocalStorageKey = ({
+export const getJotaiAtomLocalStorageKey = ({
   key,
-}: GetRecoilAtomLocalStorageKeyParams) => {
+}: GetJotaiAtomLocalStorageKeyParams) => {
   return `${LOCAL_STORAGE_KEY}_${key}`;
 };
 
-type GetRecoilAtomFamilyLocalStorageKeyParams = {
-  key: ScrapbookRecoilKey;
+type GetJotaiAtomFamilyLocalStorageKeyParams = {
+  key: ScrapbookJotaiKey;
   param: string;
 };
-export const getRecoilAtomFamilyLocalStorageKey = ({
+export const getJotaiAtomFamilyLocalStorageKey = ({
   key,
   param,
-}: GetRecoilAtomFamilyLocalStorageKeyParams) => {
+}: GetJotaiAtomFamilyLocalStorageKeyParams) => {
   return `${LOCAL_STORAGE_KEY}_${key}_${param}`;
 };

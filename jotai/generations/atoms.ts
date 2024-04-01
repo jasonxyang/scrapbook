@@ -1,7 +1,7 @@
 import { ScrapbookGeneration, ScrapbookGenerationProgress } from "@/types";
-import { recoilAtom, recoilAtomFamily } from "@/utils/client/recoil";
+import { jotaiAtom, recoilAtomFamily } from "@/utils/client/jotai";
 
-export const generationIds = recoilAtom<readonly string[] | undefined>(
+export const generationIds = jotaiAtom<readonly string[] | undefined>(
   "generationIds",
   {}
 );

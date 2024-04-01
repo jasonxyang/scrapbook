@@ -10,7 +10,6 @@ import {
 
 type ButtonProps = PropsWithChildren<
   {
-    onClick?: () => void;
     icon?: ReactNode;
     disabled?: boolean;
   } & HTMLAttributes<HTMLButtonElement>
@@ -25,9 +24,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...buttonProps}
         className={classNames(
           inter.className,
-          buttonClassname.base,
-          buttonClassname.hover,
-          { [buttonClassname.disabled]: disabled }
+          buttonClassName.base,
+          buttonClassName.hover,
+          { [buttonClassName.disabled]: disabled }
         )}
       >
         {icon}
@@ -37,8 +36,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 
-const buttonClassname = {
-  base: "text-white bg-violet-600 px-4 py-2 flex items-center gap-2 rounded-md text-sm transition-colors",
+export const buttonClassName = {
+  base: "text-white bg-violet-600 px-4 py-2 flex items-center gap-2 rounded-md text-sm transition-colors cursor-pointer",
   hover: "hover:bg-violet-700",
   disabled: "!bg-violet-400 bg !pointer-events-none",
 };
