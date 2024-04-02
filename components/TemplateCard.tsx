@@ -28,7 +28,7 @@ const TemplateCard = ({ templateId }: TemplateCardProps) => {
     <>
       <div
         className={classNames(
-          "outline-gray-400 outline-1 outline w-fit h-fit p-4 rounded-md cursor-pointer"
+          "outline-gray-400 outline-1 outline w-full h-full p-4 rounded-md cursor-pointer"
         )}
         onClick={() => goToTemplate(templateId)}
       >

@@ -6,7 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import ContextMenu, { ContextMenuItemProps } from "../../ContextMenu";
+import ContextMenu, { ContextMenuItemProps } from "../../generic/ContextMenu";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getSelection } from "lexical";
 import {

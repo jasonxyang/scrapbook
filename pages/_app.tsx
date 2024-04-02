@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import "../recoil.config";
 import { useEffect, useState } from "react";
 import AppLoading from "@/components/AppLoading";
+import Header from "@/components/Header";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [isSSR, setIsSSR] = useState(true);
@@ -13,6 +14,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
+      <Header />
       <Component {...pageProps} />
     </>
   );

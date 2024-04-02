@@ -6,17 +6,8 @@ import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
 import { HeadingNode } from "@lexical/rich-text";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
-import { $generateHtmlFromNodes } from "@lexical/html";
-import {
-  $getRoot,
-  EditorState,
-  LexicalEditor,
-  ParagraphNode,
-  TextNode,
-} from "lexical";
+import { EditorState, LexicalEditor, ParagraphNode, TextNode } from "lexical";
 import { useCallback } from "react";
-import { $generateNodesFromDOM } from "@lexical/html";
-import { HeadingTagType } from "@lexical/rich-text";
 import TreeViewPlugin from "./plugins/TreeViewPlugin";
 import OnSelectPlugin from "./plugins/OnSelectPlugin";
 import TemplateContextMenu from "./components/TemplateContextMenu";
@@ -49,107 +40,43 @@ const exampleTheme = {
     h4: richTextEditorClassName.h4,
     h5: richTextEditorClassName.h5,
   },
-  list: {
-    nested: {
-      listitem: "editor-nested-listitem",
-    },
-    ol: "editor-list-ol",
-    ul: "editor-list-ul",
-    listitem: "editor-listitem",
-  },
-  image: "editor-image",
-  link: "editor-link",
-  text: {
-    bold: "editor-text-bold",
-    italic: "editor-text-italic",
-    overflowed: "editor-text-overflowed",
-    hashtag: "editor-text-hashtag",
-    underline: "editor-text-underline",
-    strikethrough: "editor-text-strikethrough",
-    underlineStrikethrough: "editor-text-underlineStrikethrough",
-    code: "editor-text-code",
-  },
-  code: "editor-code",
-  codeHighlight: {
-    atrule: "editor-tokenAttr",
-    attr: "editor-tokenAttr",
-    boolean: "editor-tokenProperty",
-    builtin: "editor-tokenSelector",
-    cdata: "editor-tokenComment",
-    char: "editor-tokenSelector",
-    class: "editor-tokenFunction",
-    "class-name": "editor-tokenFunction",
-    comment: "editor-tokenComment",
-    constant: "editor-tokenProperty",
-    deleted: "editor-tokenProperty",
-    doctype: "editor-tokenComment",
-    entity: "editor-tokenOperator",
-    function: "editor-tokenFunction",
-    important: "editor-tokenVariable",
-    inserted: "editor-tokenSelector",
-    keyword: "editor-tokenAttr",
-    namespace: "editor-tokenVariable",
-    number: "editor-tokenProperty",
-    operator: "editor-tokenOperator",
-    prolog: "editor-tokenComment",
-    property: "editor-tokenProperty",
-    punctuation: "editor-tokenPunctuation",
-    regex: "editor-tokenVariable",
-    selector: "editor-tokenSelector",
-    string: "editor-tokenSelector",
-    symbol: "editor-tokenProperty",
-    tag: "editor-tokenProperty",
-    url: "editor-tokenOperator",
-    variable: "editor-tokenVariable",
-  },
 };
 
 type ScrapbookTextEditorProps = {
-  id: string;
-  type: "template" | "document";
+  templateId: string;
 };
 
-const ScrapbookTextEditor = ({ id, type }: ScrapbookTextEditorProps) => {
-  const templateId = type === "template" ? id : "";
-  const documentId = type === "document" ? id : "";
+const TemplateEditor = ({ templateId }: ScrapbookTextEditorProps) => {
   const [template] = useAtom(templatesByIdAtom(templateId));
-
-  const initialState = useMemo(() => {
-    if (type === "template" && template) return template.content;
-    // if (type === "document" && document) return document.content;
-  }, [template, type]);
 
   const initEditor = useCallback(
     (editor: LexicalEditor) => {
       editor.update(() => {
-        if (initialState)
+        if (template?.content)
           editor.setEditorState(
-            editor.parseEditorState(JSON.parse(initialState))
+            editor.parseEditorState(JSON.parse(template.content))
           );
       });
     },
-    [initialState]
+    [template?.content]
   );
 
   const onChange = useCallback(
     (editorState: EditorState, editor: LexicalEditor) => {
       editorState.read(() => {
-        if (type === "template")
-          updateTemplate({
-            templateId,
-            updates: { content: JSON.stringify(editorState.toJSON()) },
-          });
-        // if (type === "document")
-        //   setDocumentContent(JSON.stringify(editorState.toJSON()));
+        updateTemplate({
+          templateId,
+          updates: { content: JSON.stringify(editorState.toJSON()) },
+        });
       });
     },
-    [templateId, type]
+    [templateId]
   );
 
   const editorConfig = useMemo(
     () => ({
       editorState: initEditor,
-      namespace: `${type}-${id}`,
+      namespace: `template-${templateId}`,
       // The editor theme
       theme: {
         heading: {
@@ -187,7 +114,7 @@ const ScrapbookTextEditor = ({ id, type }: ScrapbookTextEditorProps) => {
         },
       ],
     }),
-    [id, initEditor, templateId, type]
+    [templateId, initEditor]
   );
 
   return (
@@ -224,4 +151,4 @@ const ScrapbookTextEditor = ({ id, type }: ScrapbookTextEditorProps) => {
   );
 };
 
-export default memo(ScrapbookTextEditor);
+export default memo(TemplateEditor);
