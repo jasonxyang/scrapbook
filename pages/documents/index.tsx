@@ -1,7 +1,4 @@
+import DocumentsHome from "@/components/DocumentsHome";
 import { memo } from "react";
 
-const Documents_Home = () => {
-  return <div>Documents home</div>;
-};
-
-export default memo(Documents_Home);
+export default memo(DocumentsHome);

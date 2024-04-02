@@ -18,17 +18,22 @@ const TemplatesHome = () => {
 
   if (!templateIds.length)
     return (
-      <div>
+      <div className="w-full flex items-center justify-center">
         No templates found.
         <Button onClick={handleCreateTemplate}>Create new Template</Button>
       </div>
     );
 
   return (
-    <div className="px-4 py-2 grid grid-cols-5 w-full">
-      {templateIds.map((templateId, index) => {
-        return <TemplateCard key={index} templateId={templateId} />;
-      })}
+    <div className="p-2 flex flex-col gap-4">
+      <div>
+        <Button onClick={handleCreateTemplate}>Create new Template</Button>
+      </div>
+      <div className=" grid grid-cols-5 w-full gap-4">
+        {templateIds.map((templateId, index) => {
+          return <TemplateCard key={index} templateId={templateId} />;
+        })}
+      </div>
     </div>
   );
 };

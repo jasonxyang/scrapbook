@@ -18,11 +18,19 @@ export const useScrapbookRouter = () => {
     [router]
   );
 
+  const goToDocument = useCallback(
+    (documentId: string) => {
+      router.push(`/documents/${documentId}`);
+    },
+    [router]
+  );
+
   return useMemo(
     () => ({
       push,
       goToTemplate,
+      goToDocument,
     }),
-    [goToTemplate, push]
+    [goToDocument, goToTemplate, push]
   );
 };

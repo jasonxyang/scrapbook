@@ -130,7 +130,6 @@ export type ScrapbookDocumentParams = {
   style: ScrapbookDocumentStyle;
   title: string;
   type: ScrapbookDocumentType;
-  templateId: string;
 };
 
 export type ScrapbookTemplateParams = {

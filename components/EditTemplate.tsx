@@ -1,11 +1,9 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback } from "react";
 import TemplateEditor from "./ScrapbookTextEditor/TemplateEditor";
 import { TextAreaInput, TextInput } from "./generic/Input";
 import { useAtom } from "jotai/react";
 import { templatesByIdAtom } from "@/jotai/templates/atoms";
 import { updateTemplate } from "@/jotai/templates/utils";
-import { readInspiration } from "@/jotai/inspirations/utils";
-import { inspirationsByIdAtom } from "@/jotai/inspirations/atoms";
 import InspirationPill from "./InspirationPill";
 
 type EditTemplateProps = { templateId: string };
