@@ -1,4 +1,9 @@
-import { readInspiration, updateInspiration } from "@/jotai/inspirations/utils";
+import {
+  createInspiration,
+  deleteInspiration,
+  readInspiration,
+  updateInspiration,
+} from "@/jotai/inspirations/utils";
 import {
   EditorConfig,
   LexicalNode,
@@ -8,15 +13,23 @@ import {
 } from "lexical";
 
 export type SerializedInspirationTextNode = SerializedTextNode & {
-  inspirationId?: string;
+  inspirationIds: string[];
+  templateId: string;
 };
 
 export class InspirationTextNode extends TextNode {
-  __inspirationId?: string;
+  __inspirationIds: string[];
+  __templateId: string;
 
-  constructor(text: string, inspirationId?: string, key?: NodeKey) {
+  constructor(
+    text: string,
+    templateId: string,
+    inspirationIds: string[],
+    key?: NodeKey
+  ) {
     super(text, key);
-    this.__inspirationId = inspirationId;
+    this.__inspirationIds = inspirationIds;
+    this.__templateId = templateId;
   }
 
   static getType(): string {
@@ -26,38 +39,121 @@ export class InspirationTextNode extends TextNode {
   static clone(node: InspirationTextNode): InspirationTextNode {
     return new InspirationTextNode(
       node.__text,
-      node.__inspirationId,
+      node.__templateId,
+      node.__inspirationIds,
       node.__key
     );
   }
 
-  getInspirationId() {
+  getInspirationIds() {
     const self = this.getLatest();
-    return self.__inspirationId;
+    return self.__inspirationIds;
   }
 
-  setInspirationId(inspirationId: string | undefined) {
+  setInspirationIds(inspirationIds: string[]) {
     const self = this.getWritable();
-    self.__inspirationId = inspirationId;
+    self.__inspirationIds = inspirationIds;
+  }
+
+  addInspirationId(inspirationId: string) {
+    const self = this.getWritable();
+    self.__inspirationIds.push(inspirationId);
+    this.addInspirationHandler();
+  }
+
+  addInspirationHandler() {
+    this.__inspirationIds.forEach((inspirationId) => {
+      const prevInspiration = readInspiration({
+        inspirationId,
+      });
+
+      // if the inspiration exists, we re-add the node to it
+      if (prevInspiration) {
+        console.log(
+          `add inspiration handler: updating inspiration ${inspirationId}, adding node ${this.__key}`
+        );
+        const newInspirationNodeKeys = new Set(prevInspiration.nodeKeys);
+        newInspirationNodeKeys.add(this.__key);
+        updateInspiration({
+          inspirationId: inspirationId,
+          updates: { nodeKeys: Array.from(newInspirationNodeKeys) },
+        });
+      }
+      // we create a new inspiration if the previous one was deleted
+      else {
+        console.log(
+          `add inspiration handler: creating inspiration ${inspirationId} with node ${this.__key}`
+        );
+        createInspiration({
+          content: this.__text,
+          templateId: this.__templateId,
+          nodeKeys: [this.__key],
+          prevInspirationId: inspirationId,
+        });
+      }
+    });
+  }
+
+  deleteInspirationHandler(inspirationId: string) {}
+
+  removeInspirationId(inspirationId: string) {
+    const self = this.getWritable();
+    self.__inspirationIds = self.__inspirationIds.filter(
+      (id) => id !== inspirationId
+    );
+  }
+
+  getTemplateId() {
+    const self = this.getLatest();
+    return self.__templateId;
+  }
+
+  setTemplateId(templateId: string) {
+    const self = this.getWritable();
+    self.__templateId = templateId;
   }
 
   createDOM(config: EditorConfig): HTMLElement {
     const element = super.createDOM(config);
-    if (this.__inspirationId) {
-      element.style.backgroundColor = "yellow";
-      element.dataset.inspirationId = this.__inspirationId;
+
+    /**
+     * if a node was created and has an inspiration id already,
+     * it was created from a lexical undo action.
+     */
+    this.__inspirationIds.forEach((inspirationId) => {
       const prevInspiration = readInspiration({
-        inspirationId: this.__inspirationId,
+        inspirationId,
       });
-      if (prevInspiration)
+
+      // if the inspiration still exists, we re-add the node to it
+      if (prevInspiration) {
+        console.log(
+          `create dom: updating inspiration ${inspirationId}, adding node ${this.__key}`
+        );
+        const newInspirationNodeKeys = new Set(prevInspiration.nodeKeys);
+        newInspirationNodeKeys.add(this.__key);
         updateInspiration({
-          inspirationId: this.__inspirationId,
-          updates: { nodeKeys: [...prevInspiration.nodeKeys, this.__key] },
+          inspirationId: inspirationId,
+          updates: { nodeKeys: Array.from(newInspirationNodeKeys) },
         });
-    } else {
-      delete element.dataset.inspirationId;
-      element.style.backgroundColor = "";
-    }
+      }
+      // we create a new inspiration if the previous one was deleted
+      else {
+        console.log(
+          `create dom: creating inspiration ${inspirationId} with node ${this.__key}`
+        );
+        createInspiration({
+          content: this.__text,
+          templateId: this.__templateId,
+          nodeKeys: [this.__key],
+          prevInspirationId: inspirationId,
+        });
+      }
+    });
+
+    element.style.backgroundColor = this.__inspirationIds.length
+      ? "yellow"
+      : "";
     return element;
   }
 
@@ -67,46 +163,75 @@ export class InspirationTextNode extends TextNode {
     config: EditorConfig
   ): boolean {
     const isUpdated = super.updateDOM(prevNode, dom, config);
-    if (prevNode.__inspirationId !== this.__inspirationId) {
-      console.log("inspiration id changed");
-      if (this.__inspirationId) {
-        dom.style.backgroundColor = "yellow";
-        dom.dataset.inspirationId = this.__inspirationId;
+    const prevInspirationIds = new Set(prevNode.__inspirationIds);
+    const currentInspirationsIds = new Set(this.__inspirationIds);
+
+    // run updates every time the node is updated
+    if (currentInspirationsIds.size) {
+      currentInspirationsIds.forEach((inspirationId) => {
+        if (prevInspirationIds.has(inspirationId)) return;
         const prevInspiration = readInspiration({
-          inspirationId: this.__inspirationId,
+          inspirationId,
         });
-        if (prevInspiration)
+
+        if (prevInspiration) {
+          console.log(
+            `update dom: updating inspiration ${inspirationId}, adding node ${this.__key}`
+          );
+          const newInspirationNodeKeys = new Set(prevInspiration.nodeKeys);
+          newInspirationNodeKeys.add(this.__key);
           updateInspiration({
-            inspirationId: this.__inspirationId,
-            updates: { nodeKeys: [...prevInspiration.nodeKeys, this.__key] },
+            inspirationId,
+            updates: { nodeKeys: Array.from(newInspirationNodeKeys) },
           });
-        console.log("added inspiration id");
-      } else {
-        delete dom.dataset.inspirationId;
+        } else {
+          `update dom: creating inspiration ${inspirationId} with node ${this.__key}`;
+          createInspiration({
+            content: this.__text,
+            templateId: this.__templateId,
+            nodeKeys: [this.__key],
+            prevInspirationId: inspirationId,
+          });
+        }
+      });
+      dom.style.backgroundColor = "yellow";
+    }
+
+    // we removed an inspiration id from this node, we need to remove it from the inspiration
+    else if (prevInspirationIds.size > currentInspirationsIds.size) {
+      prevInspirationIds.forEach((inspirationId) => {
+        if (currentInspirationsIds.has(inspirationId)) return;
         const prevInspiration = readInspiration({
-          inspirationId: prevNode.__inspirationId ?? "",
+          inspirationId,
         });
-        console.log(prevInspiration);
-        if (prevInspiration)
+        if (prevInspiration) {
+          console.log(
+            `update dom: updating inspiration ${inspirationId}, removing node ${prevNode.__key}`
+          );
+          const newInspirationNodeKeys = new Set(prevInspiration.nodeKeys);
+          newInspirationNodeKeys.delete(this.__key);
           updateInspiration({
             inspirationId: prevInspiration.id,
             updates: {
-              nodeKeys: prevInspiration.nodeKeys.filter(
-                (key) => key !== prevNode.__key
-              ),
+              nodeKeys: Array.from(newInspirationNodeKeys),
             },
           });
-        dom.style.backgroundColor = "";
-        console.log("deleted inspiration id");
-      }
+        } else {
+          console.log(`update dom: deleting inspiration ${inspirationId}`);
+          deleteInspiration({ inspirationId });
+        }
+      });
+      dom.style.backgroundColor = "";
     }
+
     return isUpdated;
   }
 
   static importJSON(serializedNode: SerializedInspirationTextNode) {
     return $createInspirationTextNode(
       serializedNode.text,
-      serializedNode?.inspirationId
+      serializedNode.templateId,
+      serializedNode?.inspirationIds
     );
   }
 
@@ -114,17 +239,19 @@ export class InspirationTextNode extends TextNode {
     return {
       ...super.exportJSON(),
       type: "inspiration-text",
-      inspirationId: this.__inspirationId,
+      inspirationIds: this.__inspirationIds,
+      templateId: this.__templateId,
     };
   }
 }
 
 export function $createInspirationTextNode(
   text: string,
-  inspirationId?: string,
+  templateId: string,
+  inspirationIds: string[],
   key?: NodeKey
 ): InspirationTextNode {
-  return new InspirationTextNode(text, inspirationId, key);
+  return new InspirationTextNode(text, templateId, inspirationIds, key);
 }
 
 export function $isInspirationTextNode(

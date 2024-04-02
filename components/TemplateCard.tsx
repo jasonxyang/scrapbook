@@ -1,15 +1,16 @@
 import { MouseEvent, memo, useCallback } from "react";
 import classNames from "classnames";
-import useTemplate from "@/utils/client/useTemplate";
 import Button from "./generic/Button";
 import { useScrapbookRouter } from "@/utils/client/useScrapbookRouter";
 import { deleteTemplate } from "@/jotai/templates/utils";
+import { useAtom } from "jotai/react";
+import { templatesByIdAtom } from "@/jotai/templates/atoms";
 
 type TemplateCardProps = {
   templateId: string;
 };
 const TemplateCard = ({ templateId }: TemplateCardProps) => {
-  const { template } = useTemplate({ templateId });
+  const [template] = useAtom(templatesByIdAtom(templateId));
   const { goToTemplate } = useScrapbookRouter();
 
   const handleDelete = useCallback(

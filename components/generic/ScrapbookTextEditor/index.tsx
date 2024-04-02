@@ -19,12 +19,14 @@ import { $generateNodesFromDOM } from "@lexical/html";
 import { HeadingTagType } from "@lexical/rich-text";
 import TreeViewPlugin from "./plugins/TreeViewPlugin";
 import OnSelectPlugin from "./plugins/OnSelectPlugin";
-import useTemplate from "@/utils/client/useTemplate";
 import TemplateContextMenu from "./components/TemplateContextMenu";
 import classNames from "classnames";
 import { inter } from "@/fonts";
 import { InspirationTextNode } from "./nodes/InspirationTextNode";
 import InspirationTextPlugin from "./plugins/InspirationTextPlugin";
+import { useAtom } from "jotai/react";
+import { templatesByIdAtom } from "@/jotai/templates/atoms";
+import { updateTemplate } from "@/jotai/templates/utils";
 
 const richTextEditorClassName = {
   h1: "",
@@ -110,9 +112,7 @@ type ScrapbookTextEditorProps = {
 const ScrapbookTextEditor = ({ id, type }: ScrapbookTextEditorProps) => {
   const templateId = type === "template" ? id : "";
   const documentId = type === "document" ? id : "";
-  const { template, setTemplateContent } = useTemplate({
-    templateId,
-  });
+  const [template] = useAtom(templatesByIdAtom(templateId));
 
   const initialState = useMemo(() => {
     if (type === "template" && template) return template.content;
@@ -135,12 +135,15 @@ const ScrapbookTextEditor = ({ id, type }: ScrapbookTextEditorProps) => {
     (editorState: EditorState, editor: LexicalEditor) => {
       editorState.read(() => {
         if (type === "template")
-          setTemplateContent(JSON.stringify(editorState.toJSON()));
+          updateTemplate({
+            templateId,
+            updates: { content: JSON.stringify(editorState.toJSON()) },
+          });
         // if (type === "document")
         //   setDocumentContent(JSON.stringify(editorState.toJSON()));
       });
     },
-    [setTemplateContent, type]
+    [templateId, type]
   );
 
   const editorConfig = useMemo(
@@ -180,11 +183,11 @@ const ScrapbookTextEditor = ({ id, type }: ScrapbookTextEditorProps) => {
         {
           replace: TextNode,
           with: (node: TextNode) =>
-            new InspirationTextNode(node.getTextContent()),
+            new InspirationTextNode(node.getTextContent(), templateId, []),
         },
       ],
     }),
-    [id, initEditor, type]
+    [id, initEditor, templateId, type]
   );
 
   return (

@@ -36,7 +36,10 @@ export const updateTemplate = ({
   const prevTemplate = readTemplate({ templateId });
   if (!prevTemplate) return;
   set(templatesByIdAtom(templateId), () => {
-    return { ...prevTemplate, ...updates };
+    return {
+      ...prevTemplate,
+      ...updates,
+    };
   });
 };
 

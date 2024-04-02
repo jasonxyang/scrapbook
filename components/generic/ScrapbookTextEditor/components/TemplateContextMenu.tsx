@@ -37,7 +37,8 @@ const TemplateContextMenu = ({
           .getNodes()
           .some(
             (node) =>
-              node instanceof InspirationTextNode && node.getInspirationId()
+              node instanceof InspirationTextNode &&
+              node.getInspirationIds().length
           )
       );
       setAllNodesAreInspirationNodes(
@@ -45,7 +46,8 @@ const TemplateContextMenu = ({
           .getNodes()
           .every(
             (node) =>
-              node instanceof InspirationTextNode && node.getInspirationId()
+              node instanceof InspirationTextNode &&
+              node.getInspirationIds().length
           )
       );
     });

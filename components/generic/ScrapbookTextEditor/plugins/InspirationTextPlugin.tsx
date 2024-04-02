@@ -1,21 +1,12 @@
-import { memo, useEffect, useMemo } from "react";
+import { memo, useEffect } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { readInspiration, updateInspiration } from "@/jotai/inspirations/utils";
-import { useAtom } from "jotai/react";
-import { templatesByIdAtom } from "@/jotai/templates/atoms";
 import { $getNodeByKey } from "lexical";
 import { InspirationTextNode } from "../nodes/InspirationTextNode";
+import { readTemplate } from "@/jotai/templates/utils";
 
 type InspirationTextPluginProps = { templateId: string };
 const InspirationTextPlugin = ({ templateId }: InspirationTextPluginProps) => {
-  const [template] = useAtom(templatesByIdAtom(templateId));
-  const inspirations = useMemo(() => {
-    if (!template) return [];
-    return template.inspirationIds.map((inspirationId) =>
-      readInspiration({ inspirationId })
-    );
-  }, [template]);
-
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -23,15 +14,21 @@ const InspirationTextPlugin = ({ templateId }: InspirationTextPluginProps) => {
       InspirationTextNode,
       (mutatedNodes) => {
         for (let [nodeKey, mutation] of mutatedNodes) {
+          const template = readTemplate({ templateId });
+          if (!template) throw new Error("Template not found");
+          const inspirations = template.inspirationIds.map((id) =>
+            readInspiration({ inspirationId: id })
+          );
+          const inspirationsWithNodeKey = inspirations.filter((inspiration) =>
+            inspiration?.nodeKeys.some((key) => key === nodeKey)
+          );
           switch (mutation) {
             case "destroyed": {
-              console.log(`node ${nodeKey} destroyed`);
-              const inspirationsWithNodeKey = inspirations.filter(
-                (inspiration) =>
-                  inspiration?.nodeKeys.some((key) => key === nodeKey)
-              );
               inspirationsWithNodeKey.forEach((inspiration) => {
                 if (inspiration) {
+                  console.log(
+                    `node ${nodeKey} destroy handler:  removing node ${nodeKey} from inspiration ${inspiration?.id}`
+                  );
                   updateInspiration({
                     inspirationId: inspiration.id,
                     updates: {
@@ -45,21 +42,25 @@ const InspirationTextPlugin = ({ templateId }: InspirationTextPluginProps) => {
               break;
             }
             case "updated": {
-              console.log(`node ${nodeKey} updated`);
-              const inspirationsWithNodeKey = inspirations.filter(
-                (inspiration) =>
-                  inspiration?.nodeKeys.some((key) => key === nodeKey)
-              );
               inspirationsWithNodeKey.forEach((inspiration) => {
                 if (inspiration) {
                   let newInspirationContent = "";
                   editor.getEditorState().read(() => {
-                    inspiration.nodeKeys.forEach(
-                      (key) =>
-                        (newInspirationContent +=
-                          $getNodeByKey(key)?.getTextContent())
+                    const nodes = inspiration.nodeKeys.map((key) =>
+                      $getNodeByKey(key)
+                    );
+                    const sortedNodes = nodes.sort((a, b) => {
+                      if (!a || !b) throw new Error("node not found");
+                      return a.isBefore(b) ? -1 : 1;
+                    });
+                    sortedNodes.forEach(
+                      (node) =>
+                        (newInspirationContent += node?.getTextContent())
                     );
                   });
+                  console.log(
+                    `node ${nodeKey} update handler: updating inspiration ${inspiration?.id} with content ${newInspirationContent}`
+                  );
                   updateInspiration({
                     inspirationId: inspiration.id,
                     updates: {
@@ -74,7 +75,7 @@ const InspirationTextPlugin = ({ templateId }: InspirationTextPluginProps) => {
         }
       }
     );
-  }, [editor, inspirations]);
+  }, [editor, templateId]);
 
   return null;
 };

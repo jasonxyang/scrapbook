@@ -6,7 +6,7 @@ export const $unsetSelectionInspirationId = (selection: BaseSelection) => {
   const selectedNodes = selection.getNodes();
   selectedNodes.forEach((node) => {
     if ($isInspirationTextNode(node)) {
-      node.setInspirationId(undefined);
+      node.setInspirationIds([]);
     }
   });
 };
@@ -20,6 +20,7 @@ export const $setSelectionInspirationId = (
     templateId,
     content: selection.getTextContent(),
   });
+  if (!inspirationId) return;
   const selectedNodes = selection.getNodes();
   const selectedNodesLength = selectedNodes.length;
   const anchorAndFocus = selection.getStartEndPoints();
@@ -86,7 +87,7 @@ export const $setSelectionInspirationId = (
 
       // The entire node is selected, so just format it
       if (startOffset === 0 && endOffset === firstNodeTextLength) {
-        firstNode.setInspirationId(inspirationId);
+        firstNode.addInspirationId(inspirationId);
         firstNode.select(startOffset, endOffset);
       } else {
         // The node is partially selected, so split it into two nodes
@@ -94,7 +95,7 @@ export const $setSelectionInspirationId = (
         const splitNodes = firstNode.splitText(startOffset, endOffset);
         const replacement = startOffset === 0 ? splitNodes[0] : splitNodes[1];
         if ($isInspirationTextNode(replacement)) {
-          replacement.setInspirationId(inspirationId);
+          replacement.addInspirationId(inspirationId);
           replacement.select(0, endOffset - startOffset);
         }
       }
@@ -111,7 +112,7 @@ export const $setSelectionInspirationId = (
         anchor.set(firstNode.getKey(), startOffset, "text");
       }
       if ($isInspirationTextNode(firstNode)) {
-        firstNode.setInspirationId(inspirationId);
+        firstNode.addInspirationId(inspirationId);
       }
     }
 
@@ -134,7 +135,7 @@ export const $setSelectionInspirationId = (
 
       if (endOffset !== 0 || endType === "element") {
         if ($isInspirationTextNode(lastNode)) {
-          lastNode.setInspirationId(inspirationId);
+          lastNode.addInspirationId(inspirationId);
         }
       }
     }
@@ -150,7 +151,7 @@ export const $setSelectionInspirationId = (
         selectedNodeKey !== lastNode.getKey() &&
         !selectedNode.isToken()
       ) {
-        selectedNode.setInspirationId(inspirationId);
+        selectedNode.addInspirationId(inspirationId);
       }
     }
   }

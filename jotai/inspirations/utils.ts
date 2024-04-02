@@ -1,19 +1,21 @@
 import { nanoid } from "nanoid";
 import { jotaiStore } from "../../utils/client/jotai";
-import { templatesByIdAtom } from "@/jotai/templates/atoms";
 import { ScrapbookInspiration } from "@/types";
 import { RESET } from "jotai/utils";
 import { inspirationIdsAtom, inspirationsByIdAtom } from "./atoms";
 import { readTemplate, updateTemplate } from "../templates/utils";
 
 export const createInspiration = ({
+  prevInspirationId,
   content,
   templateId,
   nodeKeys,
-}: Pick<ScrapbookInspiration, "content" | "templateId" | "nodeKeys">) => {
+}: Pick<ScrapbookInspiration, "content" | "templateId" | "nodeKeys"> & {
+  prevInspirationId?: string;
+}) => {
   const { set } = jotaiStore();
   const newInspiration: ScrapbookInspiration = {
-    id: nanoid(),
+    id: prevInspirationId ?? nanoid(),
     content,
     templateId,
     nodeKeys,
@@ -21,11 +23,11 @@ export const createInspiration = ({
   set(inspirationIdsAtom, (prev) => [...prev, newInspiration.id]);
   const prevTemplate = readTemplate({ templateId });
   if (!prevTemplate) return;
-  set(templatesByIdAtom(templateId), () => {
-    return {
-      ...prevTemplate,
+  updateTemplate({
+    templateId,
+    updates: {
       inspirationIds: [...prevTemplate.inspirationIds, newInspiration.id],
-    };
+    },
   });
   set(inspirationsByIdAtom(newInspiration.id), newInspiration);
   return newInspiration.id;
@@ -48,15 +50,17 @@ export const updateInspiration = ({
   updates: Partial<ScrapbookInspiration>;
 }) => {
   const { set } = jotaiStore();
+  // if there are no node keys in the update, delete the inspiration
   if (updates.nodeKeys !== undefined && !updates.nodeKeys.length) {
+    console.log(`updateInspiration: deleting inspiration ${inspirationId}`);
     deleteInspiration({ inspirationId });
-  } else {
-    const prevInspiration = readInspiration({ inspirationId });
-    if (!prevInspiration) return;
-    set(inspirationsByIdAtom(inspirationId), () => {
-      return { ...prevInspiration, ...updates };
-    });
+    return;
   }
+  const prevInspiration = readInspiration({ inspirationId });
+  if (!prevInspiration) return;
+  set(inspirationsByIdAtom(inspirationId), () => {
+    return { ...prevInspiration, ...updates };
+  });
 };
 
 export const deleteInspiration = ({
