@@ -106,40 +106,36 @@ export type ScrapbookGenerationType =
 
 export type ScrapbookGeneration = ScrapbookSentenceGeneration;
 
-type ScrapbookBaseGeneration = {
+export type ScrapbookBaseGeneration = {
   id: string;
+  documentId: string;
+  templateId: string;
 };
 
-type ScrapbookGenerationParams = {
-  documentParams: ScrapbookDocumentParams;
+export type ScrapbookSentenceGeneration = ScrapbookBaseGeneration & {
+  type: "sentence";
+  content: string;
+  params: ScrapbookSentenceGenerationParams;
 };
 
-export type ScrapbookSentenceGeneration = ScrapbookBaseGeneration &
-  ScrapbookGenerationParams & {
-    type: "sentence";
-    content: string;
-  };
+type ScrapbookSentenceGenerationParams = {
+  tone: ScrapbookDocument["tone"];
+  style: ScrapbookDocument["style"];
+  title: ScrapbookDocument["title"];
+  type: ScrapbookDocument["type"];
+};
 
-export type ScrapbookDocument = ScrapbookDocumentParams & {
+export type ScrapbookDocument = {
   id: string;
   content: string;
-};
-
-export type ScrapbookDocumentParams = {
   tone: ScrapbookDocumentTone;
   style: ScrapbookDocumentStyle;
   title: string;
   type: ScrapbookDocumentType;
-};
-
-export type ScrapbookTemplateParams = {
-  id: string;
-  title: string;
-  keywords: string[];
-  keySentences: string[];
+  generationIds: string[];
 };
 
 export type ScrapbookGenerationProgress = {
   generationId: string;
-  isGenerating: boolean;
+  status: "pending" | "complete" | "error";
 };

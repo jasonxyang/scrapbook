@@ -83,6 +83,7 @@ const InspirationTextPlugin = ({ templateId }: InspirationTextPluginProps) => {
         (mutatedNodes) => {
           for (let [nodeKey, mutation] of mutatedNodes) {
             const template = readTemplate({ templateId });
+            console.log(template);
             if (!template) throw new Error("Template not found");
             const inspirations = template.inspirationIds.map((id) =>
               readInspiration({ inspirationId: id })

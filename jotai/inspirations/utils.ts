@@ -13,16 +13,15 @@ export const createInspiration = ({
 }: Pick<ScrapbookInspiration, "content" | "templateId" | "nodeKeys"> & {
   prevInspirationId?: string;
 }) => {
-  const { set } = jotaiStore();
+  const { get, set } = jotaiStore();
   const newInspiration: ScrapbookInspiration = {
     id: prevInspirationId ?? nanoid(),
     content,
     templateId,
     nodeKeys,
   };
-  set(inspirationIdsAtom, (prev) => [...prev, newInspiration.id]);
   const prevTemplate = readTemplate({ templateId });
-  if (!prevTemplate) return;
+  if (!prevTemplate) throw new Error("Template not found");
   updateTemplate({
     templateId,
     updates: {
@@ -30,6 +29,8 @@ export const createInspiration = ({
     },
   });
   set(inspirationsByIdAtom(newInspiration.id), newInspiration);
+  const prevInspirations = get(inspirationIdsAtom);
+  set(inspirationIdsAtom, [...prevInspirations, newInspiration.id]);
   return newInspiration.id;
 };
 
@@ -52,15 +53,12 @@ export const updateInspiration = ({
   const { set } = jotaiStore();
   // if there are no node keys in the update, delete the inspiration
   if (updates.nodeKeys !== undefined && !updates.nodeKeys.length) {
-    console.log(`updateInspiration: deleting inspiration ${inspirationId}`);
     deleteInspiration({ inspirationId });
     return;
   }
   const prevInspiration = readInspiration({ inspirationId });
   if (!prevInspiration) return;
-  set(inspirationsByIdAtom(inspirationId), () => {
-    return { ...prevInspiration, ...updates };
-  });
+  set(inspirationsByIdAtom(inspirationId), { ...prevInspiration, ...updates });
 };
 
 export const deleteInspiration = ({
@@ -69,19 +67,25 @@ export const deleteInspiration = ({
   inspirationId: string;
 }) => {
   const { get, set } = jotaiStore();
-  set(inspirationIdsAtom, (prev) => prev.filter((id) => id !== inspirationId));
-  const templateId = get(inspirationsByIdAtom(inspirationId))?.templateId;
-  if (templateId) {
-    const prevTemplate = readTemplate({ templateId });
-    if (!prevTemplate) return;
-    updateTemplate({
-      templateId,
-      updates: {
-        inspirationIds: prevTemplate.inspirationIds.filter(
-          (id) => id !== inspirationId
-        ),
-      },
-    });
-  }
+
+  const prevInspiration = get(inspirationsByIdAtom(inspirationId));
+  if (!prevInspiration) throw new Error("Inspiration not found");
+
+  const prevTemplate = readTemplate({ templateId: prevInspiration.templateId });
+  if (!prevTemplate) throw new Error("Template not found");
+
+  updateTemplate({
+    templateId: prevInspiration.templateId,
+    updates: {
+      inspirationIds: prevTemplate.inspirationIds.filter(
+        (id) => id !== inspirationId
+      ),
+    },
+  });
   set(inspirationsByIdAtom(inspirationId), RESET);
+  const prevInspirationIds = get(inspirationIdsAtom);
+  set(
+    inspirationIdsAtom,
+    prevInspirationIds.filter((id) => id !== inspirationId)
+  );
 };

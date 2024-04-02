@@ -20,15 +20,14 @@ const InspirationPill = ({ inspirationId }: InspirationPillProps) => {
   return (
     <div
       className={classNames(
-        "bg-gray-100 flex w-fit py-2 px-4 rounded-full items-center gap-2",
+        "bg-gray-100 w-fit py-2 px-4 rounded gap-2 relative",
         inter.className
       )}
     >
-      {inspiration.content}{" "}
-      <Cross2Icon
-        className="cursor-pointer"
-        onClick={handleDeleteInspiration}
-      />
+      {inspiration.content}
+      <div className="cursor-pointer size-4 block absolute right-3 top-3">
+        <Cross2Icon onClick={handleDeleteInspiration} />
+      </div>
     </div>
   );
 };

@@ -1,10 +1,9 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import DocumentEditor from "./ScrapbookTextEditor/DocumentEditor";
-import { TextAreaInput, TextInput } from "./generic/Input";
+import { TextInput } from "./generic/Input";
 import { useAtom } from "jotai/react";
 import { updateDocument } from "@/jotai/documents/utils";
 
-import InspirationPill from "./InspirationPill";
 import { documentsByIdAtom } from "@/jotai/documents/atoms";
 import {
   SCRAPBOOK_DOCUMENT_STYLES,
@@ -13,10 +12,14 @@ import {
   ScrapbookDocument,
 } from "@/types";
 import Select, { SelectItemProps } from "./generic/Select";
+import TemplateEditor from "./ScrapbookTextEditor/TemplateEditor";
+import { templateIdsAtom, templatesByIdAtom } from "@/jotai/templates/atoms";
 
 type EditDocumentProps = { documentId: string };
 const EditDocument = ({ documentId: documentId }: EditDocumentProps) => {
   const [document] = useAtom(documentsByIdAtom(documentId));
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>();
+  const [templateIds] = useAtom(templateIdsAtom);
 
   const handleSetTitle = useCallback(
     (title: string) => {
@@ -110,11 +113,44 @@ const EditDocument = ({ documentId: documentId }: EditDocumentProps) => {
           label="Style"
         />
       </div>
-      <div className="col-span-3">
-        <DocumentEditor documentId={documentId} />
+      <div className="grid grid-cols-6 gap-4">
+        <div className="col-span-2">
+          Templates
+          {templateIds.map((templateId, index) => {
+            return (
+              <TemplateItem
+                key={index}
+                templateId={templateId}
+                onClick={() => setSelectedTemplateId(templateId)}
+              />
+            );
+          })}
+          {selectedTemplateId && (
+            <TemplateEditor templateId={selectedTemplateId} editable={false} />
+          )}
+        </div>
+        <div className="col-span-4">
+          <DocumentEditor documentId={documentId} />
+        </div>
       </div>
     </div>
   );
 };
+
+type TemplateItemProps = { templateId: string; onClick?: () => void };
+const TemplateItem = memo(({ templateId, onClick }: TemplateItemProps) => {
+  const [template] = useAtom(templatesByIdAtom(templateId));
+  if (!template) return null;
+  return (
+    <div
+      onClick={onClick}
+      className="py-2 px-4 rounded bg-gray-100 cursor-pointer"
+    >
+      {template.name}
+    </div>
+  );
+});
+
+TemplateItem.displayName = "TemplateItem";
 
 export default memo(EditDocument);

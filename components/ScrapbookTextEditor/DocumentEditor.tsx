@@ -6,19 +6,15 @@ import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
 import { HeadingNode } from "@lexical/rich-text";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
-import { EditorState, LexicalEditor, ParagraphNode, TextNode } from "lexical";
+import { EditorState, LexicalEditor, ParagraphNode } from "lexical";
 import { useCallback } from "react";
 import TreeViewPlugin from "./plugins/TreeViewPlugin";
 import OnSelectPlugin from "./plugins/OnSelectPlugin";
-import TemplateContextMenu from "./components/TemplateContextMenu";
 import classNames from "classnames";
 import { inter } from "@/fonts";
-import { InspirationTextNode } from "./nodes/InspirationTextNode";
-import InspirationTextPlugin from "./plugins/InspirationTextPlugin";
 import { useAtom } from "jotai/react";
-import { templatesByIdAtom } from "@/jotai/templates/atoms";
-import { updateTemplate } from "@/jotai/templates/utils";
 import { documentsByIdAtom } from "@/jotai/documents/atoms";
+import { updateDocument } from "@/jotai/documents/utils";
 
 const richTextEditorClassName = {
   h1: "",
@@ -65,8 +61,8 @@ const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
   const onChange = useCallback(
     (editorState: EditorState) => {
       editorState.read(() => {
-        updateTemplate({
-          templateId: documentId,
+        updateDocument({
+          documentId,
           updates: { content: JSON.stringify(editorState.toJSON()) },
         });
       });
@@ -77,7 +73,7 @@ const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
   const editorConfig = useMemo(
     () => ({
       editorState: initEditor,
-      namespace: `template-${documentId}`,
+      namespace: `document-${documentId}`,
       // The editor theme
       theme: {
         heading: {

@@ -1,17 +1,12 @@
 import { ScrapbookGeneration, ScrapbookGenerationProgress } from "@/types";
-import { jotaiAtom, recoilAtomFamily } from "@/utils/client/jotai";
+import { jotaiAtom, jotaiAtomFamily } from "@/utils/client/jotai";
 
-export const generationIds = jotaiAtom<readonly string[] | undefined>(
-  "generationIds",
-  {}
-);
+export const generationIdsAtom = jotaiAtom<string[]>("generationIds", []);
 
-export const generationsByIdAtomFamily = recoilAtomFamily<
-  ScrapbookGeneration | undefined,
-  { generationId: string }
->("generationsById", {});
+export const generationsByIdAtom = jotaiAtomFamily<
+  ScrapbookGeneration | undefined
+>("generationsById", undefined);
 
-export const generationProgressesAtomFamily = recoilAtomFamily<
-  ScrapbookGenerationProgress | undefined,
-  { generationId: string }
->("generationProgressesByGenerationId", {});
+export const generationProgressesByGenerationIdAtom = jotaiAtomFamily<
+  ScrapbookGenerationProgress | undefined
+>("generationProgressesByGenerationId", undefined);

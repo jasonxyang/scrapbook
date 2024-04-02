@@ -47,7 +47,7 @@ const EditTemplate = ({ templateId }: EditTemplateProps) => {
         </div>
       </div>
       <div className="col-span-3">
-        <TemplateEditor templateId={templateId} />
+        <TemplateEditor templateId={templateId} editable={true} />
       </div>
     </div>
   );

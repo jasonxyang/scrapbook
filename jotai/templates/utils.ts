@@ -6,7 +6,7 @@ import { RESET } from "jotai/utils";
 import { deleteInspiration } from "../inspirations/utils";
 
 export const createTemplate = () => {
-  const { set } = jotaiStore();
+  const { get, set } = jotaiStore();
   const newTemplate: ScrapbookTemplate = {
     id: nanoid(),
     name: "",
@@ -15,7 +15,8 @@ export const createTemplate = () => {
     inspirationIds: [],
     generationIds: [],
   };
-  set(templateIdsAtom, (prev) => [...prev, newTemplate.id]);
+  const prevTemplateIds = get(templateIdsAtom);
+  set(templateIdsAtom, [...prevTemplateIds, newTemplate.id]);
   set(templatesByIdAtom(newTemplate.id), newTemplate);
   return newTemplate.id;
 };
@@ -34,18 +35,20 @@ export const updateTemplate = ({
 }) => {
   const { set } = jotaiStore();
   const prevTemplate = readTemplate({ templateId });
-  if (!prevTemplate) return;
-  set(templatesByIdAtom(templateId), () => {
-    return {
-      ...prevTemplate,
-      ...updates,
-    };
+  if (!prevTemplate) throw new Error("Template not found");
+  set(templatesByIdAtom(templateId), {
+    ...prevTemplate,
+    ...updates,
   });
 };
 
 export const deleteTemplate = ({ templateId }: { templateId: string }) => {
   const { get, set } = jotaiStore();
-  set(templateIdsAtom, (prev) => prev.filter((id) => id !== templateId));
+  const prevTemplateIds = get(templateIdsAtom);
+  set(
+    templateIdsAtom,
+    prevTemplateIds.filter((id) => id !== templateId)
+  );
   get(templatesByIdAtom(templateId))?.inspirationIds.forEach(
     (inspirationId) => {
       deleteInspiration({ inspirationId });

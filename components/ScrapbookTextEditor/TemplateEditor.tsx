@@ -44,9 +44,10 @@ const exampleTheme = {
 
 type ScrapbookTextEditorProps = {
   templateId: string;
+  editable?: boolean;
 };
 
-const TemplateEditor = ({ templateId }: ScrapbookTextEditorProps) => {
+const TemplateEditor = ({ templateId, editable }: ScrapbookTextEditorProps) => {
   const [template] = useAtom(templatesByIdAtom(templateId));
 
   const initEditor = useCallback(
@@ -76,6 +77,7 @@ const TemplateEditor = ({ templateId }: ScrapbookTextEditorProps) => {
   const editorConfig = useMemo(
     () => ({
       editorState: initEditor,
+      editable,
       namespace: `template-${templateId}`,
       // The editor theme
       theme: {
@@ -114,7 +116,7 @@ const TemplateEditor = ({ templateId }: ScrapbookTextEditorProps) => {
         },
       ],
     }),
-    [templateId, initEditor]
+    [initEditor, editable, templateId]
   );
 
   return (
@@ -140,13 +142,12 @@ const TemplateEditor = ({ templateId }: ScrapbookTextEditorProps) => {
             ErrorBoundary={LexicalErrorBoundary}
           />
         </TemplateContextMenu>
-        <InspirationTextPlugin templateId={templateId} />
       </div>
 
-      <HistoryPlugin />
-      <OnChangePlugin onChange={onChange} />
-      <OnSelectPlugin onSelect={() => {}} />
-      <TreeViewPlugin />
+      {editable && <InspirationTextPlugin templateId={templateId} />}
+      {editable && <HistoryPlugin />}
+      {editable && <OnChangePlugin onChange={onChange} />}
+      {editable && <TreeViewPlugin />}
     </LexicalComposer>
   );
 };

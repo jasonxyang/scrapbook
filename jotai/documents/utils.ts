@@ -5,7 +5,7 @@ import { ScrapbookDocument } from "@/types";
 import { RESET } from "jotai/utils";
 
 export const createDocument = () => {
-  const { set } = jotaiStore();
+  const { get, set } = jotaiStore();
   const newDocument: ScrapbookDocument = {
     id: nanoid(),
     tone: "Casual",
@@ -13,8 +13,10 @@ export const createDocument = () => {
     title: "",
     type: "Other",
     content: "",
+    generationIds: [],
   };
-  set(documentIdsAtom, (prev) => [...prev, newDocument.id]);
+  const prevDocumentIds = get(documentIdsAtom);
+  set(documentIdsAtom, [...prevDocumentIds, newDocument.id]);
   set(documentsByIdAtom(newDocument.id), newDocument);
   return newDocument.id;
 };
@@ -33,17 +35,19 @@ export const updateDocument = ({
 }) => {
   const { set } = jotaiStore();
   const prevDocument = readDocument({ documentId });
-  if (!prevDocument) return;
-  set(documentsByIdAtom(documentId), () => {
-    return {
-      ...prevDocument,
-      ...updates,
-    };
+  if (!prevDocument) throw new Error("Document not found");
+  set(documentsByIdAtom(documentId), {
+    ...prevDocument,
+    ...updates,
   });
 };
 
 export const deleteDocument = ({ documentId }: { documentId: string }) => {
-  const { set } = jotaiStore();
-  set(documentIdsAtom, (prev) => prev.filter((id) => id !== documentId));
+  const { get, set } = jotaiStore();
+  const prevDocumentIds = get(documentIdsAtom);
+  set(
+    documentIdsAtom,
+    prevDocumentIds.filter((id) => id !== documentId)
+  );
   set(documentsByIdAtom(documentId), RESET);
 };

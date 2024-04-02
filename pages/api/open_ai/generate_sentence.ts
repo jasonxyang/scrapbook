@@ -1,9 +1,7 @@
 import {
-  ScrapbookDocumentType,
   ScrapbookGeneration,
-  ScrapbookDocumentStyle,
-  ScrapbookTemplateSection,
-  ScrapbookDocumentTone,
+  ScrapbookBaseGeneration,
+  ScrapbookSentenceGeneration,
 } from "@/types";
 import { openai } from "@/utils/server/open_ai";
 import { nanoid } from "nanoid";
@@ -13,72 +11,36 @@ import {
   ChatCompletionUserMessageParam,
 } from "openai/resources/index.mjs";
 
-type GenerateSentenceSystemMessagesParams = {
-  documentTitle: string;
-  documentType: ScrapbookDocumentType;
-  documentStyle: ScrapbookDocumentStyle;
-  documentTone: ScrapbookDocumentTone;
-};
 const generateSentenceSystemMessages = ({
-  documentTitle,
-  documentType,
-  documentTone,
-  documentStyle,
-}: GenerateSentenceSystemMessagesParams): ChatCompletionSystemMessageParam[] => {
+  title,
+  type,
+  tone,
+  style,
+}: ScrapbookSentenceGeneration["params"]): ChatCompletionSystemMessageParam[] => {
   return [
     {
       role: "system",
-      content: `You are an assistant that generates a sentence within a ${documentType} document titled ${documentTitle} with a ${documentStyle} style and ${documentTone} tone.`,
+      content: `You are an assistant that generates a sentence within a ${type} document titled ${title} with a ${style} style and ${tone} tone.`,
     },
   ];
 };
-type GenerateSentenceUserMessagesParams = {
-  sectionTitle: ScrapbookTemplateSection["title"];
-  sectionKeySentences: ScrapbookTemplateSection["keySentences"];
-  sectionKeywords: ScrapbookTemplateSection["keywords"];
-};
-const generateSentenceUserMessages = ({
-  sectionTitle,
-  sectionKeywords,
-  sectionKeySentences,
-}: GenerateSentenceUserMessagesParams): ChatCompletionUserMessageParam[] => {
+
+const generateSentenceUserMessages = (): ChatCompletionUserMessageParam[] => {
   return [
     {
       role: "user",
-      content: `I will provide you with a list of keywords and key sentences. Using the keywords and key sentences I give you, please generate a sentence for a section within a document titled ${sectionTitle}, that is related to keywords and key sentences I provide.`,
-    },
-    {
-      role: "user",
-      content: `Here is the list of keywords: ${sectionKeywords}. Here is the list of key sentences: ${sectionKeySentences}. Please generate a sentence.`,
+      content: `Please generate a sentence.`,
     },
   ];
 };
 
-export type GenerateSentenceParams = GenerateSentenceSystemMessagesParams &
-  GenerateSentenceUserMessagesParams;
-
-const generateSentence = async ({
-  sectionTitle,
-  sectionKeySentences,
-  sectionKeywords,
-  documentTitle,
-  documentType,
-  documentStyle,
-  documentTone,
-}: GenerateSentenceParams) => {
+const generateSentence = async (
+  params: ScrapbookSentenceGeneration["params"]
+) => {
   const completion = await openai.chat.completions.create({
     messages: [
-      ...generateSentenceSystemMessages({
-        documentTitle,
-        documentType,
-        documentStyle,
-        documentTone,
-      }),
-      ...generateSentenceUserMessages({
-        sectionTitle,
-        sectionKeywords,
-        sectionKeySentences,
-      }),
+      ...generateSentenceSystemMessages(params),
+      ...generateSentenceUserMessages(),
     ],
     model: "gpt-3.5-turbo",
   });
@@ -89,11 +51,12 @@ export type GenerateSentenceResponseData = {
   successs: boolean;
   data: ScrapbookGeneration | null;
 };
-export type GenerateSentenceRequestBody = GenerateSentenceSystemMessagesParams &
-  GenerateSentenceUserMessagesParams & {
-    generationId?: string;
-    sectionId: string;
-  };
+export type GenerateSentenceRequestBody = {
+  existingId?: ScrapbookBaseGeneration["id"];
+  documentId: ScrapbookBaseGeneration["documentId"];
+  templateId: ScrapbookBaseGeneration["templateId"];
+  params: ScrapbookSentenceGeneration["params"];
+};
 
 export default async function handler(
   req: NextApiRequest,
@@ -101,47 +64,23 @@ export default async function handler(
 ) {
   switch (req.method) {
     case "POST": {
-      const {
-        sectionId,
-        sectionTitle,
-        sectionKeywords,
-        sectionKeySentences,
-        documentTitle,
-        documentType,
-        documentStyle,
-        documentTone,
-        generationId,
-      } = req.body;
+      const { params, existingId, documentId, templateId } =
+        req.body as GenerateSentenceRequestBody;
 
       const sentence = await generateSentence({
-        sectionTitle,
-        sectionKeywords,
-        sectionKeySentences,
-        documentTitle,
-        documentType,
-        documentStyle,
-        documentTone,
+        ...params,
       });
 
       res.status(200).json({
         successs: !!sentence,
         data: sentence
           ? {
-              id: generationId ?? nanoid(),
+              id: existingId ?? nanoid(),
               type: "sentence",
               content: sentence,
-              documentParams: {
-                documentType,
-                style: documentStyle,
-                tone: documentTone,
-                title: documentTitle,
-              },
-              templateParams: {
-                id: sectionId,
-                title: sectionTitle,
-                keywords: sectionKeywords,
-                keySentences: sectionKeySentences,
-              },
+              params,
+              documentId,
+              templateId,
             }
           : null,
       });
