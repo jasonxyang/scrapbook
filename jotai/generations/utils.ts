@@ -26,11 +26,11 @@ export const generationIsStale = ({
 }) => {
   const { get } = jotaiStore();
   const generation = get(generationsByIdAtom(generationId));
-  if (!generation) throw new Error("Generation not found");
+  if (!generation) return false;
   const template = readTemplate({ templateId: generation.templateId });
-  if (!template) throw new Error("Template not found");
+  if (!template) return false;
   const document = readDocument({ documentId: generation.documentId });
-  if (!document) throw new Error("Document not found");
+  if (!document) return false;
 
   const { params, inspirationIds } = generation;
   const documentParamsIsStale =
@@ -98,8 +98,7 @@ export const regenerateSentence = async ({
 }) => {
   const { get } = jotaiStore();
   const prevGeneration = get(generationsByIdAtom(generationId));
-  if (!prevGeneration)
-    throw new Error("Tried to regenerate but generation not found");
+  if (!prevGeneration) return;
   try {
     const response = await post<GenerateSentenceResponseData>(
       "/api/open_ai/generate_sentence",
@@ -125,9 +124,9 @@ export const createGeneration = ({
 }) => {
   const { get, set } = jotaiStore();
   const prevTemplate = readTemplate({ templateId: generation.templateId });
-  if (!prevTemplate) throw new Error("Template not found");
+  if (!prevTemplate) return;
   const prevDocument = readDocument({ documentId: generation.documentId });
-  if (!prevDocument) throw new Error("Document not found");
+  if (!prevDocument) return;
   updateTemplate({
     templateId: generation.templateId,
     updates: {
