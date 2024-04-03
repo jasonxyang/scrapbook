@@ -69,9 +69,6 @@ export class InspirationTextNode extends TextNode {
 
       // if the inspiration exists, we re-add the node to it
       if (prevInspiration) {
-        console.log(
-          `add inspiration handler: updating inspiration ${inspirationId}, adding node ${this.__key}`
-        );
         const newInspirationNodeKeys = new Set(prevInspiration.nodeKeys);
         newInspirationNodeKeys.add(this.__key);
         updateInspiration({
@@ -81,9 +78,6 @@ export class InspirationTextNode extends TextNode {
       }
       // we create a new inspiration if the previous one was deleted
       else {
-        console.log(
-          `add inspiration handler: creating inspiration ${inspirationId} with node ${this.__key}`
-        );
         createInspiration({
           content: this.__text,
           templateId: this.__templateId,
@@ -127,9 +121,6 @@ export class InspirationTextNode extends TextNode {
 
       // if the inspiration still exists, we re-add the node to it
       if (prevInspiration) {
-        console.log(
-          `create dom: updating inspiration ${inspirationId}, adding node ${this.__key}`
-        );
         const newInspirationNodeKeys = new Set(prevInspiration.nodeKeys);
         newInspirationNodeKeys.add(this.__key);
         updateInspiration({
@@ -139,9 +130,6 @@ export class InspirationTextNode extends TextNode {
       }
       // we create a new inspiration if the previous one was deleted
       else {
-        console.log(
-          `create dom: creating inspiration ${inspirationId} with node ${this.__key}`
-        );
         createInspiration({
           content: this.__text,
           templateId: this.__templateId,
@@ -175,9 +163,6 @@ export class InspirationTextNode extends TextNode {
         });
 
         if (prevInspiration) {
-          console.log(
-            `update dom: updating inspiration ${inspirationId}, adding node ${this.__key}`
-          );
           const newInspirationNodeKeys = new Set(prevInspiration.nodeKeys);
           newInspirationNodeKeys.add(this.__key);
           updateInspiration({
@@ -185,7 +170,6 @@ export class InspirationTextNode extends TextNode {
             updates: { nodeKeys: Array.from(newInspirationNodeKeys) },
           });
         } else {
-          `update dom: creating inspiration ${inspirationId} with node ${this.__key}`;
           createInspiration({
             content: this.__text,
             templateId: this.__templateId,
@@ -205,9 +189,6 @@ export class InspirationTextNode extends TextNode {
           inspirationId,
         });
         if (prevInspiration) {
-          console.log(
-            `update dom: updating inspiration ${inspirationId}, removing node ${prevNode.__key}`
-          );
           const newInspirationNodeKeys = new Set(prevInspiration.nodeKeys);
           newInspirationNodeKeys.delete(this.__key);
           updateInspiration({
@@ -217,7 +198,6 @@ export class InspirationTextNode extends TextNode {
             },
           });
         } else {
-          console.log(`update dom: deleting inspiration ${inspirationId}`);
           deleteInspiration({ inspirationId });
         }
       });

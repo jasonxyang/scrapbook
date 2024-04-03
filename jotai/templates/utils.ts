@@ -16,7 +16,10 @@ export const createTemplate = () => {
     generationIds: [],
   };
   const prevTemplateIds = get(templateIdsAtom);
-  set(templateIdsAtom, [...prevTemplateIds, newTemplate.id]);
+  set(
+    templateIdsAtom,
+    Array.from(new Set([...prevTemplateIds, newTemplate.id]))
+  );
   set(templatesByIdAtom(newTemplate.id), newTemplate);
   return newTemplate.id;
 };
@@ -35,7 +38,7 @@ export const updateTemplate = ({
 }) => {
   const { set } = jotaiStore();
   const prevTemplate = readTemplate({ templateId });
-  if (!prevTemplate) throw new Error("Template not found");
+  if (!prevTemplate) return;
   set(templatesByIdAtom(templateId), {
     ...prevTemplate,
     ...updates,

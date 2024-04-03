@@ -58,9 +58,6 @@ const InspirationTextPlugin = ({ templateId }: InspirationTextPluginProps) => {
 
   useEffect(
     function onTemplateInspirationChange() {
-      console.log(prevInspirationsById.current);
-      console.log(inspirationsById);
-
       Object.entries(prevInspirationsById.current).forEach(
         ([id, inspiration]) => {
           if (inspirationsById[id]) return;
@@ -83,8 +80,7 @@ const InspirationTextPlugin = ({ templateId }: InspirationTextPluginProps) => {
         (mutatedNodes) => {
           for (let [nodeKey, mutation] of mutatedNodes) {
             const template = readTemplate({ templateId });
-            console.log(template);
-            if (!template) throw new Error("Template not found");
+            if (!template) return;
             const inspirations = template.inspirationIds.map((id) =>
               readInspiration({ inspirationId: id })
             );
@@ -95,9 +91,6 @@ const InspirationTextPlugin = ({ templateId }: InspirationTextPluginProps) => {
               case "destroyed": {
                 inspirationsWithNodeKey.forEach((inspiration) => {
                   if (inspiration) {
-                    console.log(
-                      `node ${nodeKey} destroy handler:  removing node ${nodeKey} from inspiration ${inspiration?.id}`
-                    );
                     updateInspiration({
                       inspirationId: inspiration.id,
                       updates: {
@@ -129,9 +122,6 @@ const InspirationTextPlugin = ({ templateId }: InspirationTextPluginProps) => {
                           (newInspirationContent += node?.getTextContent())
                       );
                     });
-                    console.log(
-                      `node ${nodeKey} update handler: updating inspiration ${inspiration?.id} with content ${newInspirationContent}`
-                    );
                     updateInspiration({
                       inspirationId: inspiration.id,
                       updates: {

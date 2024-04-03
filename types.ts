@@ -110,6 +110,7 @@ export type ScrapbookBaseGeneration = {
   id: string;
   documentId: string;
   templateId: string;
+  inspirationIds: string[];
 };
 
 export type ScrapbookSentenceGeneration = ScrapbookBaseGeneration & {
@@ -123,6 +124,7 @@ type ScrapbookSentenceGenerationParams = {
   style: ScrapbookDocument["style"];
   title: ScrapbookDocument["title"];
   type: ScrapbookDocument["type"];
+  inspiration: ScrapbookInspiration["content"][];
 };
 
 export type ScrapbookDocument = {

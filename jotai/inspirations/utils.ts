@@ -21,16 +21,21 @@ export const createInspiration = ({
     nodeKeys,
   };
   const prevTemplate = readTemplate({ templateId });
-  if (!prevTemplate) throw new Error("Template not found");
+  if (!prevTemplate) return;
   updateTemplate({
     templateId,
     updates: {
-      inspirationIds: [...prevTemplate.inspirationIds, newInspiration.id],
+      inspirationIds: Array.from(
+        new Set([...prevTemplate.inspirationIds, newInspiration.id])
+      ),
     },
   });
   set(inspirationsByIdAtom(newInspiration.id), newInspiration);
   const prevInspirations = get(inspirationIdsAtom);
-  set(inspirationIdsAtom, [...prevInspirations, newInspiration.id]);
+  set(
+    inspirationIdsAtom,
+    Array.from(new Set([...prevInspirations, newInspiration.id]))
+  );
   return newInspiration.id;
 };
 
@@ -69,10 +74,10 @@ export const deleteInspiration = ({
   const { get, set } = jotaiStore();
 
   const prevInspiration = get(inspirationsByIdAtom(inspirationId));
-  if (!prevInspiration) throw new Error("Inspiration not found");
+  if (!prevInspiration) return;
 
   const prevTemplate = readTemplate({ templateId: prevInspiration.templateId });
-  if (!prevTemplate) throw new Error("Template not found");
+  if (!prevTemplate) return;
 
   updateTemplate({
     templateId: prevInspiration.templateId,
@@ -88,4 +93,14 @@ export const deleteInspiration = ({
     inspirationIdsAtom,
     prevInspirationIds.filter((id) => id !== inspirationId)
   );
+};
+
+export const getInspirationContent = ({
+  inspirationId,
+}: {
+  inspirationId: string;
+}) => {
+  const inspiration = readInspiration({ inspirationId });
+  if (!inspiration) return "";
+  return inspiration.content;
 };

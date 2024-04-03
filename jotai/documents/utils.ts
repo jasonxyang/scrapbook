@@ -3,6 +3,7 @@ import { jotaiStore } from "../../utils/client/jotai";
 import { documentIdsAtom, documentsByIdAtom } from "@/jotai/documents/atoms";
 import { ScrapbookDocument } from "@/types";
 import { RESET } from "jotai/utils";
+import { deleteGeneration } from "../generations/utils";
 
 export const createDocument = () => {
   const { get, set } = jotaiStore();
@@ -16,7 +17,10 @@ export const createDocument = () => {
     generationIds: [],
   };
   const prevDocumentIds = get(documentIdsAtom);
-  set(documentIdsAtom, [...prevDocumentIds, newDocument.id]);
+  set(
+    documentIdsAtom,
+    Array.from(new Set([...prevDocumentIds, newDocument.id]))
+  );
   set(documentsByIdAtom(newDocument.id), newDocument);
   return newDocument.id;
 };
@@ -35,7 +39,7 @@ export const updateDocument = ({
 }) => {
   const { set } = jotaiStore();
   const prevDocument = readDocument({ documentId });
-  if (!prevDocument) throw new Error("Document not found");
+  if (!prevDocument) return;
   set(documentsByIdAtom(documentId), {
     ...prevDocument,
     ...updates,
@@ -44,6 +48,12 @@ export const updateDocument = ({
 
 export const deleteDocument = ({ documentId }: { documentId: string }) => {
   const { get, set } = jotaiStore();
+  const prevDocument = get(documentsByIdAtom(documentId));
+  if (!prevDocument) return;
+  const prevGenerationIds = prevDocument.generationIds;
+  prevGenerationIds.forEach((generationId) => {
+    deleteGeneration({ generationId });
+  });
   const prevDocumentIds = get(documentIdsAtom);
   set(
     documentIdsAtom,

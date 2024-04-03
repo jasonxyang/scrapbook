@@ -14,6 +14,8 @@ import {
 import Select, { SelectItemProps } from "./generic/Select";
 import TemplateEditor from "./ScrapbookTextEditor/TemplateEditor";
 import { templateIdsAtom, templatesByIdAtom } from "@/jotai/templates/atoms";
+import SentenceGeneration from "./SentenceGeneration";
+import GenerationsMonitor from "./GenerationsMonitor";
 
 type EditDocumentProps = { documentId: string };
 const EditDocument = ({ documentId: documentId }: EditDocumentProps) => {
@@ -81,59 +83,75 @@ const EditDocument = ({ documentId: documentId }: EditDocumentProps) => {
   const { type, tone, style, title } = document;
 
   return (
-    <div className="flex flex-col gap-4 p-4 w-full">
-      <TextInput
-        value={title}
-        onValueChange={handleSetTitle}
-        placeholder="Title"
-        className="text-xl"
-      />
-      <div className="grid grid-cols-3 gap-4">
-        <Select
-          value={type as string}
-          onValueChange={handleSetType as (value: string) => void}
-          items={typeItems}
-          itemType="item"
-          label="Type"
+    <>
+      {selectedTemplateId && (
+        <GenerationsMonitor
+          documentId={documentId}
+          templateId={selectedTemplateId}
         />
+      )}
+      <div className="flex flex-col gap-4 p-4 w-full">
+        <TextInput
+          value={title}
+          onValueChange={handleSetTitle}
+          placeholder="Title"
+          className="text-xl"
+        />
+        <div className="grid grid-cols-3 gap-4">
+          <Select
+            value={type as string}
+            onValueChange={handleSetType as (value: string) => void}
+            items={typeItems}
+            itemType="item"
+            label="Type"
+          />
 
-        <Select
-          value={tone as string}
-          onValueChange={handleSetTone as (value: string) => void}
-          items={toneItems}
-          itemType="item"
-          label="Tone"
-        />
+          <Select
+            value={tone as string}
+            onValueChange={handleSetTone as (value: string) => void}
+            items={toneItems}
+            itemType="item"
+            label="Tone"
+          />
 
-        <Select
-          value={style as string}
-          onValueChange={handleSetStyle as (value: string) => void}
-          items={styleItems}
-          itemType="item"
-          label="Style"
-        />
-      </div>
-      <div className="grid grid-cols-6 gap-4">
-        <div className="col-span-2">
-          Templates
-          {templateIds.map((templateId, index) => {
-            return (
-              <TemplateItem
-                key={index}
-                templateId={templateId}
-                onClick={() => setSelectedTemplateId(templateId)}
+          <Select
+            value={style as string}
+            onValueChange={handleSetStyle as (value: string) => void}
+            items={styleItems}
+            itemType="item"
+            label="Style"
+          />
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="col-span-1">
+            Templates
+            {templateIds.map((templateId, index) => {
+              return (
+                <TemplateItem
+                  key={index}
+                  templateId={templateId}
+                  onClick={() => setSelectedTemplateId(templateId)}
+                />
+              );
+            })}
+            {selectedTemplateId && (
+              <TemplateEditor
+                templateId={selectedTemplateId}
+                editable={false}
               />
-            );
-          })}
-          {selectedTemplateId && (
-            <TemplateEditor templateId={selectedTemplateId} editable={false} />
-          )}
-        </div>
-        <div className="col-span-4">
-          <DocumentEditor documentId={documentId} />
+            )}
+          </div>
+          <div className="col-span-1">
+            <DocumentEditor documentId={documentId} />
+          </div>
+          <div className="col-span-1 flex flex-col gap-3">
+            {document.generationIds.map((generationId, index) => (
+              <SentenceGeneration generationId={generationId} key={index} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

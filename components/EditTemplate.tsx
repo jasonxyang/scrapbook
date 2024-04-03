@@ -4,7 +4,7 @@ import { TextAreaInput, TextInput } from "./generic/Input";
 import { useAtom } from "jotai/react";
 import { templatesByIdAtom } from "@/jotai/templates/atoms";
 import { updateTemplate } from "@/jotai/templates/utils";
-import InspirationPill from "./InspirationPill";
+import InspirationPill from "./TemplateInspiration";
 
 type EditTemplateProps = { templateId: string };
 const EditTemplate = ({ templateId }: EditTemplateProps) => {

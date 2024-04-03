@@ -55,6 +55,7 @@ export type GenerateSentenceRequestBody = {
   existingId?: ScrapbookBaseGeneration["id"];
   documentId: ScrapbookBaseGeneration["documentId"];
   templateId: ScrapbookBaseGeneration["templateId"];
+  inspirationIds: ScrapbookBaseGeneration["inspirationIds"];
   params: ScrapbookSentenceGeneration["params"];
 };
 
@@ -64,7 +65,7 @@ export default async function handler(
 ) {
   switch (req.method) {
     case "POST": {
-      const { params, existingId, documentId, templateId } =
+      const { params, existingId, documentId, templateId, inspirationIds } =
         req.body as GenerateSentenceRequestBody;
 
       const sentence = await generateSentence({
@@ -81,6 +82,7 @@ export default async function handler(
               params,
               documentId,
               templateId,
+              inspirationIds,
             }
           : null,
       });

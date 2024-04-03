@@ -17,14 +17,56 @@ import {
 import { RESET } from "jotai/utils";
 import { readTemplate, updateTemplate } from "../templates/utils";
 import { readDocument, updateDocument } from "../documents/utils";
+import { readInspiration } from "../inspirations/utils";
+
+export const generationIsStale = ({
+  generationId,
+}: {
+  generationId: string;
+}) => {
+  const { get } = jotaiStore();
+  const generation = get(generationsByIdAtom(generationId));
+  if (!generation) throw new Error("Generation not found");
+  const template = readTemplate({ templateId: generation.templateId });
+  if (!template) throw new Error("Template not found");
+  const document = readDocument({ documentId: generation.documentId });
+  if (!document) throw new Error("Document not found");
+
+  const { params, inspirationIds } = generation;
+  const documentParamsIsStale =
+    document.tone !== params.tone ||
+    document.style !== params.style ||
+    document.title !== params.title ||
+    document.type !== params.type;
+
+  if (documentParamsIsStale) return true;
+
+  const inspirationsIdsAreStale =
+    new Set(inspirationIds).size !== new Set(template.inspirationIds).size;
+
+  if (inspirationsIdsAreStale) return true;
+
+  const generationInspirationContent = new Set(
+    inspirationIds.map((id) => readInspiration({ inspirationId: id })?.content)
+  );
+  const templateInspirationContent = new Set(
+    template.inspirationIds.map(
+      (id) => readInspiration({ inspirationId: id })?.content
+    )
+  );
+  if (generationInspirationContent.size !== templateInspirationContent.size)
+    return true;
+};
 
 export const generateSentence = async ({
   documentId,
   templateId,
+  inspirationIds,
   params,
 }: {
   documentId: string;
   templateId: string;
+  inspirationIds: string[];
   params: ScrapbookSentenceGeneration["params"];
 }) => {
   try {
@@ -33,6 +75,7 @@ export const generateSentence = async ({
       {
         documentId,
         templateId,
+        inspirationIds,
         params,
       } satisfies GenerateSentenceRequestBody
     );
@@ -87,14 +130,25 @@ export const createGeneration = ({
   if (!prevDocument) throw new Error("Document not found");
   updateTemplate({
     templateId: generation.templateId,
-    updates: { generationIds: [...prevTemplate.generationIds, generation.id] },
+    updates: {
+      generationIds: Array.from(
+        new Set([...prevTemplate.generationIds, generation.id])
+      ),
+    },
   });
   updateDocument({
     documentId: generation.documentId,
-    updates: { generationIds: [...prevDocument.generationIds, generation.id] },
+    updates: {
+      generationIds: Array.from(
+        new Set([...prevDocument.generationIds, generation.id])
+      ),
+    },
   });
   const prevGenerationIds = get(generationIdsAtom) ?? [];
-  set(generationIdsAtom, [...prevGenerationIds, generation.id]);
+  set(
+    generationIdsAtom,
+    Array.from(new Set([...prevGenerationIds, generation.id]))
+  );
   set(generationsByIdAtom(generation.id), generation);
   return generation.id;
 };
@@ -123,10 +177,12 @@ export const deleteGeneration = ({
   generationId: string;
 }) => {
   const { get, set } = jotaiStore();
-  const prevTemplate = readTemplate({ templateId: generationId });
-  if (!prevTemplate) throw new Error("Template not found");
-  const prevDocument = readDocument({ documentId: generationId });
-  if (!prevDocument) throw new Error("Document not found");
+  const prevGeneration = get(generationsByIdAtom(generationId));
+  if (!prevGeneration) return;
+  const prevTemplate = readTemplate({ templateId: prevGeneration.templateId });
+  if (!prevTemplate) return;
+  const prevDocument = readDocument({ documentId: prevGeneration.documentId });
+  if (!prevDocument) return;
   updateTemplate({
     templateId: generationId,
     updates: {
