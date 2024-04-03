@@ -134,7 +134,7 @@ const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
       <HistoryPlugin />
       <OnChangePlugin onChange={onChange} />
       <OnSelectPlugin onSelect={() => {}} />
-      <TreeViewPlugin />
+      {/* <TreeViewPlugin /> */}
     </LexicalComposer>
   );
 };

@@ -147,7 +147,7 @@ const TemplateEditor = ({ templateId, editable }: ScrapbookTextEditorProps) => {
       {editable && <InspirationTextPlugin templateId={templateId} />}
       {editable && <HistoryPlugin />}
       {editable && <OnChangePlugin onChange={onChange} />}
-      {editable && <TreeViewPlugin />}
+      {/* {editable && <TreeViewPlugin />} */}
     </LexicalComposer>
   );
 };
