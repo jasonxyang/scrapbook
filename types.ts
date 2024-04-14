@@ -100,31 +100,46 @@ export type ScrapbookInspiration = {
   content: string;
 };
 
-export const SCRAPBOOK_GENERATION_TYPES = ["sentence"] as const;
+export const SCRAPBOOK_GENERATION_TYPES = ["sentence", "outline"] as const;
 export type ScrapbookGenerationType =
   (typeof SCRAPBOOK_GENERATION_TYPES)[number];
 
-export type ScrapbookGeneration = ScrapbookSentenceGeneration;
+export type ScrapbookGeneration =
+  | ScrapbookSentenceGeneration
+  | ScrapbookOutlineGeneration;
 
 export type ScrapbookBaseGeneration = {
+  type: ScrapbookGenerationType;
   id: string;
   documentId: string;
   templateId: string;
-  inspirationIds: string[];
 };
 
 export type ScrapbookSentenceGeneration = ScrapbookBaseGeneration & {
   type: "sentence";
   content: string;
   params: ScrapbookSentenceGenerationParams;
+  inspirationIds: string[];
 };
 
-type ScrapbookSentenceGenerationParams = {
+export type ScrapbookOutlineGeneration = ScrapbookBaseGeneration & {
+  type: "outline";
+  content: string;
+  params: ScrapbookOutlineGenerationParams;
+};
+
+export type ScrapbookGenerationSystemParams = {
   tone: ScrapbookDocument["tone"];
   style: ScrapbookDocument["style"];
   title: ScrapbookDocument["title"];
   type: ScrapbookDocument["type"];
+};
+type ScrapbookSentenceGenerationParams = ScrapbookGenerationSystemParams & {
   inspiration: ScrapbookInspiration["content"][];
+};
+
+type ScrapbookOutlineGenerationParams = ScrapbookGenerationSystemParams & {
+  content: ScrapbookTemplate["content"];
 };
 
 export type ScrapbookDocument = {

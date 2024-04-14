@@ -20,7 +20,9 @@ import GenerationsMonitor from "./GenerationsMonitor";
 type EditDocumentProps = { documentId: string };
 const EditDocument = ({ documentId: documentId }: EditDocumentProps) => {
   const [document] = useAtom(documentsByIdAtom(documentId));
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>();
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
+    null
+  );
   const [templateIds] = useAtom(templateIdsAtom);
 
   const handleSetTitle = useCallback(
@@ -142,7 +144,10 @@ const EditDocument = ({ documentId: documentId }: EditDocumentProps) => {
             )}
           </div>
           <div className="col-span-1">
-            <DocumentEditor documentId={documentId} />
+            <DocumentEditor
+              documentId={documentId}
+              selectedTemplateId={selectedTemplateId}
+            />
           </div>
           <div className="col-span-1 flex flex-col gap-3">
             {document.generationIds.map((generationId, index) => (

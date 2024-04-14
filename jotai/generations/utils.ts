@@ -18,6 +18,8 @@ import { RESET } from "jotai/utils";
 import { readTemplate, updateTemplate } from "../templates/utils";
 import { readDocument, updateDocument } from "../documents/utils";
 import { readInspiration } from "../inspirations/utils";
+import { isEqual } from "lodash";
+import { createHeadlessEditor } from "@lexical/headless";
 
 export const generationIsStale = ({
   generationId,
@@ -32,7 +34,7 @@ export const generationIsStale = ({
   const document = readDocument({ documentId: generation.documentId });
   if (!document) return false;
 
-  const { params, inspirationIds } = generation;
+  const { params } = generation;
   const documentParamsIsStale =
     document.tone !== params.tone ||
     document.style !== params.style ||
@@ -41,21 +43,27 @@ export const generationIsStale = ({
 
   if (documentParamsIsStale) return true;
 
-  const inspirationsIdsAreStale =
-    new Set(inspirationIds).size !== new Set(template.inspirationIds).size;
+  switch (generation.type) {
+    case "sentence": {
+      const { inspirationIds, params } = generation;
+      const inspirationsIdsAreStale = !isEqual(
+        new Set(inspirationIds),
+        new Set(template.inspirationIds)
+      );
 
-  if (inspirationsIdsAreStale) return true;
+      if (inspirationsIdsAreStale) return true;
 
-  const generationInspirationContent = new Set(
-    inspirationIds.map((id) => readInspiration({ inspirationId: id })?.content)
-  );
-  const templateInspirationContent = new Set(
-    template.inspirationIds.map(
-      (id) => readInspiration({ inspirationId: id })?.content
-    )
-  );
-  if (generationInspirationContent.size !== templateInspirationContent.size)
-    return true;
+      const generationInspirationContent = new Set(params.inspiration);
+      const templateInspirationContent = new Set(
+        template.inspirationIds.map(
+          (id) => readInspiration({ inspirationId: id })?.content
+        )
+      );
+      if (!isEqual(generationInspirationContent, templateInspirationContent))
+        return true;
+      return false;
+    }
+  }
 };
 
 export const generateSentence = async ({
@@ -99,6 +107,7 @@ export const regenerateSentence = async ({
   const { get } = jotaiStore();
   const prevGeneration = get(generationsByIdAtom(generationId));
   if (!prevGeneration) return;
+  if (prevGeneration.type !== "sentence") return;
   try {
     const response = await post<GenerateSentenceResponseData>(
       "/api/open_ai/generate_sentence",
@@ -157,12 +166,12 @@ export const readGeneration = ({ generationId }: { generationId: string }) => {
   return get(generationsByIdAtom(generationId));
 };
 
-export const updateGeneration = ({
+export const updateGeneration = <GenerationType>({
   generationId,
   updates,
 }: {
   generationId: string;
-  updates: Partial<ScrapbookGeneration>;
+  updates: Partial<GenerationType>;
 }) => {
   const { set } = jotaiStore();
   const prevGeneration = readGeneration({ generationId });
@@ -250,4 +259,28 @@ export const deleteGenerationProgress = ({
 }) => {
   const { set } = jotaiStore();
   set(generationProgressesByGenerationIdAtom(generationId), RESET);
+};
+
+export const lexicalSerializedStateToTextContent = ({
+  destination,
+  serializedLexicalState,
+}: {
+  destination: { content: string };
+  serializedLexicalState: string;
+}) => {
+  if (!serializedLexicalState) return "";
+  const headlessEditor = createHeadlessEditor({
+    nodes: [],
+    onError: () => {},
+  });
+
+  headlessEditor.setEditorState(
+    headlessEditor.parseEditorState(JSON.parse(serializedLexicalState))
+  );
+
+  headlessEditor.update(() => {
+    console.log(serializedLexicalState);
+    console.log(headlessEditor.getRootElement()?.textContent ?? "");
+    destination.content = headlessEditor.getRootElement()?.textContent ?? "";
+  });
 };

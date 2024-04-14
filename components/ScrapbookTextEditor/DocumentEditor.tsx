@@ -41,9 +41,13 @@ const exampleTheme = {
 
 type DocumentEditorProps = {
   documentId: string;
+  selectedTemplateId: string | null;
 };
 
-const DocumentEditor = ({ documentId }: DocumentEditorProps) => {
+const DocumentEditor = ({
+  documentId,
+  selectedTemplateId,
+}: DocumentEditorProps) => {
   const [document] = useAtom(documentsByIdAtom(documentId));
 
   const initEditor = useCallback(
