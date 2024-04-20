@@ -1,8 +1,10 @@
 {
+  "name": "scrapbook",
+  "version": "1.0.0",
   "workspaces": [
-    "google-cloud-functions/*",
-    "google-docs-plugin/*",
-    "web/*"
+    "google-cloud-functions/**",
+    "google-docs-plugin/**",
+    "web/**"
   ],
   "packageManager": "npm@8.19.3"
 }
