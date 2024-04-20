@@ -13,6 +13,8 @@ export type ScrapbookPageRoute = {
 const SCRAPBOOK_API_ROUTES = {
   open_ai: ["healthcheck", "generate_sentence"],
   healthcheck: [],
+  sessions: [],
+  users: [],
 } as const;
 
 export type ScrapbookApiRoute = {
@@ -20,6 +22,11 @@ export type ScrapbookApiRoute = {
     | `/api/${key}/${(typeof SCRAPBOOK_API_ROUTES)[key][number]}`
     | `/api/${key}`;
 }[keyof typeof SCRAPBOOK_API_ROUTES];
+
+export type ScrapbookApiReponseData<T = undefined> = {
+  status: "success" | "error";
+  data?: T;
+};
 
 const SCRAPBOOK_JOTAI_KEYS = {
   documents: ["documentIds", "documentsById", "documentsSelector"],
