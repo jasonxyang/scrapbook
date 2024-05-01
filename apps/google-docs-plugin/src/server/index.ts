@@ -1,12 +1,10 @@
-import { onOpen, openDialogTailwindCSS, openAboutSidebar } from './ui';
-
-import { getSelectedText, insertText } from './docs';
+import {
+  onOpen,
+  openSidebar,
+} from './ui';
 
 // Public functions must be exported as named exports
 export {
   onOpen,
-  openDialogTailwindCSS,
-  openAboutSidebar,
-  getSelectedText,
-  insertText,
+  openSidebar,
 };
