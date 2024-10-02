@@ -1,6 +1,0 @@
-{
-  "main": "index.ts",
-  "dependencies": {
-    "@google-cloud/functions-framework": "^3.0.0"
-  }
-}

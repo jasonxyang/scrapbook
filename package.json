@@ -1,7 +1,0 @@
-{
-  "workspaces": [
-    "google-cloud-functions/*",
-    "google-docs-plugin/*",
-    "web/*"
-  ]
-}
