@@ -42,15 +42,21 @@ const serverEntry = './src/server/index.ts';
 const copyAppscriptEntry = './appsscript.json';
 
 // define live development dialog paths
-const devDialogEntry = './dev/index.js';
+const devDialogEntry = './dev/index.tsx';
 
 // define client entry points and output names
 const clientEntrypoints = [
   {
-    name: 'CLIENT - Sidebar',
-    entry: './src/client/sidebar/index.js',
-    filename: 'sidebar',
-    template: './src/client/sidebar/index.html',
+    name: 'CLIENT - Dialog Demo Tailwind CSS',
+    entry: './src/client/dialog-demo-tailwindcss',
+    filename: 'dialog-demo-tailwindcss',
+    template: './src/client/dialog-demo-tailwindcss/index.html',
+  },
+  {
+    name: 'CLIENT - Sidebar About Page',
+    entry: './src/client/sidebar-about-page',
+    filename: 'sidebar-about-page',
+    template: './src/client/sidebar-about-page/index.html',
   },
 ];
 
@@ -164,7 +170,6 @@ const DynamicCdnWebpackPluginConfig = {
   // set "verbose" to true to print console logs on CDN usage while webpack builds
   verbose: false,
   resolver: (packageName, packageVersion, options) => {
-    const packageSuffix = isProd ? '.min.js' : '.js';
     const moduleDetails = moduleToCdn(packageName, packageVersion, options);
 
     // don't externalize react during development due to issue with react-refresh
@@ -177,43 +182,6 @@ const DynamicCdnWebpackPluginConfig = {
     // "name" should match the package being imported
     // "var" is important to get right -- this should be the exposed global. Look up "webpack externals" for info.
     switch (packageName) {
-      case 'react-transition-group':
-        return {
-          name: packageName,
-          var: 'ReactTransitionGroup',
-          version: packageVersion,
-          url: `https://unpkg.com/react-transition-group@${packageVersion}/dist/react-transition-group${packageSuffix}`,
-        };
-      case 'react-bootstrap':
-        return {
-          name: packageName,
-          var: 'ReactBootstrap',
-          version: packageVersion,
-          url: `https://unpkg.com/react-bootstrap@${packageVersion}/dist/react-bootstrap${packageSuffix}`,
-        };
-      case '@mui/material':
-        return {
-          name: packageName,
-          var: 'MaterialUI',
-          version: packageVersion,
-          url: `https://unpkg.com/@mui/material@${packageVersion}/umd/material-ui.${
-            isProd ? 'production.min.js' : 'development.js'
-          }`,
-        };
-      case '@emotion/react':
-        return {
-          name: packageName,
-          var: 'emotionReact',
-          version: packageVersion,
-          url: `https://unpkg.com/@emotion/react@${packageVersion}/dist/emotion-react.umd.min.js`,
-        };
-      case '@emotion/styled':
-        return {
-          name: packageName,
-          var: 'emotionStyled',
-          version: packageVersion,
-          url: `https://unpkg.com/@emotion/styled@${packageVersion}/dist/emotion-styled.umd.min.js`,
-        };
       // externalize gas-client to keep bundle size even smaller
       case 'gas-client':
         return {

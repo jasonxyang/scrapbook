@@ -1,5 +1,5 @@
 {
-  "name": "react-google-apps-script",
+  "name": "google-docs-plugin",
   "version": "2.1.1",
   "description": "Starter project for using React with Google Apps Script",
   "repository": {
@@ -10,7 +10,7 @@
     "test:integration": "jest --forceExit test/local-development.test",
     "test:integration:extended": "cross-env IS_EXTENDED=true jest --forceExit test/local-development.test",
     "login": "clasp login",
-    "setup": "rimraf .clasp.json && mkdirp dist && clasp create --type sheets --title \"My React Project\" --rootDir ./dist && mv ./dist/.clasp.json ./.clasp.json && rimraf dist",
+    "setup": "rimraf .clasp.json && mkdirp dist && clasp create --type docs --title \"My React Project\" --rootDir ./dist && mv ./dist/.clasp.json ./.clasp.json && rimraf dist",
     "open": "clasp open --addon",
     "setup:https": "mkdirp certs && mkcert -key-file ./certs/key.pem -cert-file ./certs/cert.pem localhost 127.0.0.1",
     "build:dev": "cross-env NODE_ENV=development webpack",
@@ -34,18 +34,9 @@
     "npm": ">=6.0.0"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.5",
-    "@fontsource/roboto": "^5.0.13",
-    "@mui/icons-material": "^5.15.15",
-    "@mui/material": "^5.15.15",
-    "@mui/styled-engine-sc": "^6.0.0-alpha.18",
-    "prop-types": "^15.8.1",
-    "react": "^18.3.1",
+    "react": "^18.2.0",
     "react-bootstrap": "^2.4.0",
-    "react-dom": "^18.3.1",
-    "react-transition-group": "^4.4.2",
-    "styled-components": "^6.1.9",
+    "react-dom": "^18.2.0",
     "tailwindcss": "^3.1.6"
   },
   "devDependencies": {
@@ -65,8 +56,10 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
     "@types/expect-puppeteer": "^5.0.0",
     "@types/jest-environment-puppeteer": "^5.0.2",
+    "@types/node": "^20.12.7",
     "@types/puppeteer": "^5.4.6",
     "@types/react": "^18.0.14",
+    "@types/react-dom": "^18.2.25",
     "autoprefixer": "10.4.5",
     "aws-sdk": "^2.1106.0",
     "babel-loader": "^8.2.5",

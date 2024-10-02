@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { serverFunctions } from '../src/client/utils/serverFunctions.ts';
+import { serverFunctions } from '../src/client/utils/serverFunctions';
 
 const { FILENAME, PORT } = process.env;
 
 const DevServer = () => {
   const iframe = React.useRef(null);
   useEffect(() => {
-    const handleRequest = (event) => {
+    const handleRequest = (event: any) => {
       const request = event.data;
       const { type, functionName, id, args } = request;
 
