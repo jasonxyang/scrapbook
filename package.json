@@ -3,6 +3,5 @@
     "google-cloud-functions/*",
     "google-docs-plugin/*",
     "web/*"
-  ],
-  "packageManager": "npm@8.19.3"
+  ]
 }
